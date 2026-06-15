@@ -70,7 +70,7 @@ _GLOBAL_LAG  = sum(v["lag"]     for v in STATS_COMMUNES.values()) / len(STATS_CO
 
 class PredictionService:
 
-    MODELE_TEMPOREL   = "meilleur_modele_temporel.json"
+    MODELE_TEMPOREL   = "meilleur_modele_temporel.joblib"
     SCALER_TEMPOREL   = "scaler_temporel.joblib"
     FEATURES_TEMPOREL = "features_temporel.txt"
 
