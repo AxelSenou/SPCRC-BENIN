@@ -78,13 +78,13 @@ class PredictionService:
         base = config.OUTPUT_DIR
 
         # ── Modèle SPATIAL ────────────────────────────────────────────────────
-        self.model_spatial  = json.load(base / config.MODEL_PATH)
+        self.model_spatial  = joblib.load(base / config.MODEL_PATH)
         self.scaler_spatial =joblib.load(base / config.SCALER_PATH)
         with open(base / config.FEATURES_PATH, 'r', encoding='utf-8') as f:
             self.features_spatial = f.read().strip().split(',')
 
         # ── Modèle TEMPOREL ───────────────────────────────────────────────────
-        self.model_temporel  = json.load(base / self.MODELE_TEMPOREL)
+        self.model_temporel  = joblib.load(base / self.MODELE_TEMPOREL)
         self.scaler_temporel = joblib.load(base / self.SCALER_TEMPOREL)
 
         features_temp_path = base / self.FEATURES_TEMPOREL
