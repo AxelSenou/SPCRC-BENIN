@@ -2,6 +2,7 @@ import unicodedata
 import numpy as np
 import pandas as pd
 import json
+import joblib
 from pathlib import Path
 from config import config
 
@@ -78,7 +79,7 @@ class PredictionService:
 
         # ── Modèle SPATIAL ────────────────────────────────────────────────────
         self.model_spatial  = json.load(base / config.MODEL_PATH)
-        self.scaler_spatial =json.load(base / config.SCALER_PATH)
+        self.scaler_spatial =joblib.load(base / config.SCALER_PATH)
         with open(base / config.FEATURES_PATH, 'r', encoding='utf-8') as f:
             self.features_spatial = f.read().strip().split(',')
 
