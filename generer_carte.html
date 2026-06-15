@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SPCRC-Bénin — Système de Prédiction et de Cartographie</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f4f8; height: 100vh; display: flex; flex-direction: column; }
+        header { background: linear-gradient(135deg, #1a5c2a, #2e8b57); color: white; padding: 12px 20px; display: flex; align-items: center; gap: 14px; box-shadow: 0 2px 8px rgba(0,0,0,.25); }
+        header h1 { font-size: 18px; font-weight: 600; }
+        header p { font-size: 12px; opacity: .85; margin-top: 2px; }
+        
+        .main-container { display: flex; flex: 1; overflow: hidden; }
+        
+        .sidebar { width: 380px; background: white; box-shadow: 2px 0 10px rgba(0,0,0,0.1); overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 18px; z-index: 1000; }
+        .section-title { font-size: 13px; font-weight: 700; color: #1a5c2a; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid #e2e8f0; padding-bottom: 4px; margin-bottom: 6px; }
+        .form-group { display: flex; flex-direction: column; gap: 5px; }
+        .form-row { display: flex; gap: 10px; }
+        .form-row .form-group { flex: 1; }
+        label { font-size: 11px; font-weight: 600; color: #4a5568; }
+        input, select { padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px; color: #334155; background: #f8fafc; transition: all 0.2s; }
+        input:focus, select:focus { outline: none; border-color: #2e8b57; background: white; box-shadow: 0 0 0 3px rgba(46,139,87,0.15); }
+        
+        .btn-container { display: flex; flex-direction: column; gap: 8px; margin-top: 5px; }
+        button { width: 100%; padding: 11px; border: none; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        #btnPredict { background: #2e8b57; color: white; box-shadow: 0 2px 4px rgba(46,139,87,0.2); }
+        #btnPredict:hover { background: #246e44; }
+        #btnPredictAll { background: #1e293b; color: white; box-shadow: 0 2px 4px rgba(30,41,59,0.2); }
+        #btnPredictAll:hover { background: #0f172a; }
+        button:disabled { background: #cbd5e1 !important; color: #94a3b8 !important; cursor: not-allowed; box-shadow: none !important; }
+        
+        .result-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px; display: none; flex-direction: column; gap: 10px; }
+        .result-box.show { display: flex; animation: slideIn 0.3s ease-out; }
+        .result-header { display: flex; justify-content: space-between; align-items: center; }
+        .result-title { font-size: 14px; font-weight: 700; color: #1e293b; }
+        .badge-cat { padding: 3px 8px; border-radius: 12px; font-size: 10px; font-weight: 700; }
+        .yield-display { font-size: 26px; font-weight: 800; color: #2e8b57; text-align: center; margin: 5px 0; }
+        .yield-unit { font-size: 14px; font-weight: 500; color: #64748b; }
+        .interpretation { font-size: 12px; color: #475569; line-height: 1.4; background: white; padding: 10px; border-radius: 6px; border-left: 3px solid #cbd5e1; }
+        
+        .map-container { flex: 1; position: relative; }
+        #map { width: 100%; height: 100%; }
+        
+        .spinner { display: none; position: absolute; top: 20px; right: 20px; background: white; padding: 10px 15px; border-radius: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.15); font-size: 12px; font-weight: 600; color: #334155; z-index: 2000; border-left: 3px solid #2e8b57; }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div style="font-size: 24px;"></div>
+        <div>
+            <h1>SPCRC-Bénin</h1>
+            <p>Système de Prédiction et de Cartographie des Rendements Cotonniers </p>
+        </div>
+        <div style="margin-left: auto; font-size: 11px; background: rgba(255,255,255,0.15); padding: 4px 10px; border-radius: 12px; font-weight: 500;">
+            Soutenance de Licence
+        </div>
+    </header>
+
+    <div class="main-container">
+        <div class="sidebar">
+            
+            <div>
+                <div class="section-title">Unité Territoriale</div>
+                <div class="form-group">
+                    <label for="communeSelect">Commune cible</label>
+                    <select id="communeSelect">
+                        <option value="ABOMEY">Abomey</option>
+                        <option value="ADJA-OUÈRÈ">Adja-Ouèrè</option>
+                        <option value="AGBANGNIZOUN">Agbangnizoun</option>
+                        <option value="APLAHOUÉ">Aplahoué</option>
+                        <option value="BANIKOARA" selected>Banikoara</option>
+                        <option value="BANTÈ">Bantè</option>
+                        <option value="BASSILA">Bassila</option>
+                        <option value="BEMBÈRÈKÈ">Bembèrèkè</option>
+                        <option value="BOHICON">Bohicon</option>
+                        <option value="BONOU">Bonou</option>
+                        <option value="BOUKOUMBÉ">Boukoumbé</option>
+                        <option value="COBLY">Cobly</option>
+                        <option value="COPARGO">Copargo</option>
+                        <option value="COVÈ">Covè</option>
+                        <option value="DASSA-ZOUMÈ">Dassa-Zoumè</option>
+                        <option value="DJAKOTOMEY">Djakotomey</option>
+                        <option value="DJIDJA">Djidja</option>
+                        <option value="DJOUGOU">Djougou</option>
+                        <option value="DOGBO">Dogbo</option>
+                        <option value="GLAZOUÉ">Glazoué</option>
+                        <option value="GOGOUNOU">Gogounou</option>
+                        <option value="KALALÉ">Kalalé</option>
+                        <option value="KANDI">Kandi</option>
+                        <option value="KARIMAMA">Karimama</option>
+                        <option value="KLOUÉKANMÈ">Klouékanmè</option>
+                        <option value="KOUANDÉ">Kouandé</option>
+                        <option value="KÉROU">Kérou</option>
+                        <option value="KÉTOU">Kétou</option>
+                        <option value="LALO">Lalo</option>
+                        <option value="LOKOSSA">Lokossa</option>
+                        <option value="MALANVILLE">Malanville</option>
+                        <option value="MATÉRI">Matéri</option>
+                        <option value="N'DALI">N'Dali</option>
+                        <option value="NATITINGOU">Natitingou</option>
+                        <option value="NIKKI">Nikki</option>
+                        <option value="OUAKÉ">Ouaké</option>
+                        <option value="OUINHI">Ouinhi</option>
+                        <option value="OUÈSSE">Ouèsse</option>
+                        <option value="PARAKOU">Parakou</option>
+                        <option value="POBÉ">Pobé</option>
+                        <option value="PÈRÈRÈ">Pèrèrè</option>
+                        <option value="PÉHUNCO">Péhunco</option>
+                        <option value="SAVALOU">Savalou</option>
+                        <option value="SAVÈ">Savè</option>
+                        <option value="SINENDÉ">Sinendé</option>
+                        <option value="SÉGBANA">Ségbana</option>
+                        <option value="TANGUIÉTA">Tanguiéta</option>
+                        <option value="TCHAOUROU">Tchaourou</option>
+                        <option value="TOUCOUNTOUNA">Toucountouna</option>
+                        <option value="TOVIKLIN">Toviklin</option>
+                        <option value="ZA-KPOTA">Za-Kpota</option>
+                        <option value="ZAGNANADO">Zagnanado</option>
+                        <option value="ZOGBODOMEY">Zogbodomey</option>
+                    </select>
+                </div>
+
+                <!-- Toggle commune inconnue -->
+                <div style="margin-top: 10px; display: flex; align-items: center; gap: 8px; cursor: pointer;" onclick="toggleCommuneInconnue()">
+                    <div id="toggleIcon" style="width:36px; height:20px; background:#cbd5e1; border-radius:10px; position:relative; transition:background .2s; flex-shrink:0;">
+                        <div id="toggleBall" style="width:16px; height:16px; background:white; border-radius:50%; position:absolute; top:2px; left:2px; transition:left .2s; box-shadow:0 1px 3px rgba(0,0,0,.3);"></div>
+                    </div>
+                    <span style="font-size:11px; color:#64748b; font-weight:600;">Prédire une commune hors dataset (modèle temporel)</span>
+                </div>
+
+                <div id="communeInconnueBlock" style="display:none; margin-top:8px;">
+                    <div class="form-group">
+                        <label for="communeInconnueInput">Nom de la commune (saisie libre)</label>
+                        <input type="text" id="communeInconnueInput" placeholder="ex: Cotonou, Porto-Novo…" style="text-transform:uppercase;">
+                    </div>
+                    <div class="form-row" style="margin-top:6px;">
+                        <div class="form-group">
+                            <label for="latInconnue">Latitude (optionnel)</label>
+                            <input type="number" id="latInconnue" step="0.0001" placeholder="ex: 6.3654">
+                        </div>
+                        <div class="form-group">
+                            <label for="lngInconnue">Longitude (optionnel)</label>
+                            <input type="number" id="lngInconnue" step="0.0001" placeholder="ex: 2.4183">
+                        </div>
+                    </div>
+                    <div style="font-size:10px; color:#475569; margin-top:3px;">
+                         Les coordonnées permettent de placer la commune sur la carte. Si vides, aucun marqueur ne sera affiché.
+                    </div>
+                    <div style="font-size:10px; color:#b45309; background:#fffbeb; border:1px solid #fcd34d; border-radius:5px; padding:6px 8px; margin-top:5px;">
+                         Commune hors périmètre d'entraînement — le modèle temporel sera utilisé avec les statistiques nationales moyennes. Prédiction à titre indicatif.
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <div class="section-title">Caractéristiques du Sol</div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="pH_Sol">pH du Sol</label>
+                        <input type="number" id="pH_Sol" step="0.1" value="6.2">
+                    </div>
+                    <div class="form-group">
+                        <label for="Argile_Perc">Argile (%)</label>
+                        <input type="number" id="Argile_Perc" step="0.5" value="22.5">
+                    </div>
+                    <div class="form-group">
+                        <label for="Azote_g_kg">Azote (g/kg)</label>
+                        <input type="number" id="Azote_g_kg" step="0.05" value="1.25">
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <div class="section-title">Conditions Hydro-Climatiques</div>
+                
+                <div style="margin-bottom: 8px;">
+                    <span style="font-size: 11px; font-weight: 700; color: #64748b;">Phase 1 : Semis & Levée</span>
+                    <div class="form-row" style="margin-top: 3px;">
+                        <div class="form-group">
+                            <label>Pluie (mm)</label>
+                            <input type="number" id="Pluie_Semis_mm" value="352.4">
+                        </div>
+                        <div class="form-group">
+                            <label>Jours Secs Max</label>
+                            <input type="number" id="Max_Jours_Secs_Semis" value="2">
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 8px;">
+                    <span style="font-size: 11px; font-weight: 700; color: #64748b;">Phase 2 : Floraison & Capsulation</span>
+                    <div class="form-row" style="margin-top: 3px;">
+                        <div class="form-group">
+                            <label>Pluie (mm)</label>
+                            <input type="number" id="Pluie_Floraison_mm" value="573.7">
+                        </div>
+                        <div class="form-group">
+                            <label>Jours Secs Max</label>
+                            <input type="number" id="Max_Jours_Secs_Floraison" value="1">
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <span style="font-size: 11px; font-weight: 700; color: #64748b;">Phase 3 : Maturation & Récolte</span>
+                    <div class="form-row" style="margin-top: 3px;">
+                        <div class="form-group">
+                            <label>Pluie (mm)</label>
+                            <input type="number" id="Pluie_Maturation_mm" value="161.5">
+                        </div>
+                        <div class="form-group">
+                            <label>Jours Secs Max</label>
+                            <input type="number" id="Max_Jours_Secs_Maturation" value="12">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <div class="section-title">Atmosphère & Évaporation</div>
+                <div class="form-row" style="margin-bottom: 8px;">
+                    <div class="form-group">
+                        <label for="Temp_Max_Moy_C">Tmax Moy (°C)</label>
+                        <input type="number" id="Temp_Max_Moy_C" step="0.1" value="33.5">
+                    </div>
+                    <div class="form-group">
+                        <label for="Temp_Min_Moy_C">Tmin Moy (°C)</label>
+                        <input type="number" id="Temp_Min_Moy_C" step="0.1" value="22.0">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="Humidite_Relative_Perc">Humidité (%)</label>
+                        <input type="number" id="Humidite_Relative_Perc" value="84">
+                    </div>
+                    <div class="form-group">
+                        <label for="ETP_mm">ETP Cumulée (mm)</label>
+                        <input type="number" id="ETP_mm" value="1100">
+                    </div>
+                </div>
+            </div>
+
+            <div class="btn-container">
+                <button type="button" id="btnPredict" onclick="predictYield()">
+                     Prédire la commune
+                </button>
+                <button type="button" id="btnPredictAll" onclick="predictAllCommunes()">
+                     Cartographier tout le Bénin
+                </button>
+            </div>
+
+            <div class="result-box" id="resultBox">
+                <div class="result-header">
+                    <div class="result-title" id="resCommune">BANIKOARA</div>
+                    <div class="badge-cat" id="resBadge">BON / MOYEN</div>
+                </div>
+                <div class="yield-display">
+                    <span id="resVal">0.00</span> <span class="yield-unit">kg/ha</span>
+                </div>
+                <div style="text-align:center; margin-bottom: 4px;">
+                    <span id="resModele" style="font-size: 10px; font-weight: 600; color: #94a3b8; background: #f1f5f9; padding: 2px 8px; border-radius: 10px;"></span>
+                </div>
+                <div class="interpretation" id="resInterp">
+                    Analyse agronomique en attente d'exécution...
+                </div>
+                <div id="resAvertissement" style="display:none; font-size: 11px; color: #b45309; background: #fffbeb; border: 1px solid #fcd34d; border-radius: 6px; padding: 8px; margin-top: 4px;"></div>
+            </div>
+
+        </div>
+
+        <div class="map-container">
+            <div id="map"></div>
+            <div class="spinner" id="spinner">Inférence agro-climatique en cours...</div>
+        </div>
+    </div>
+
+    <script>
+        const API = "http://127.0.0.1:5000";
+        
+        // Coordonnées GPS des 53 communes du dataset SPCRC-Bénin
+        const COMMUNES = {
+            "ABOMEY":        { lat: 7.1827,  lng: 1.9894 },
+            "ADJA-OUÈRÈ":    { lat: 7.0167,  lng: 2.5000 },
+            "AGBANGNIZOUN":  { lat: 7.0833,  lng: 1.9667 },
+            "APLAHOUÉ":      { lat: 6.9333,  lng: 1.6833 },
+            "BANIKOARA":     { lat: 11.2985, lng: 2.4386 },
+            "BANTÈ":         { lat: 8.4167,  lng: 1.8833 },
+            "BASSILA":       { lat: 9.0000,  lng: 1.6667 },
+            "BEMBÈRÈKÈ":     { lat: 10.2249, lng: 2.6634 },
+            "BOHICON":       { lat: 7.1833,  lng: 2.0667 },
+            "BONOU":         { lat: 6.9000,  lng: 2.4500 },
+            "BOUKOUMBÉ":     { lat: 10.1764, lng: 1.1064 },
+            "COBLY":         { lat: 10.4833, lng: 1.3667 },
+            "COPARGO":       { lat: 9.8500,  lng: 1.5500 },
+            "COVÈ":          { lat: 7.2167,  lng: 2.3667 },
+            "DASSA-ZOUMÈ":   { lat: 7.7500,  lng: 2.1833 },
+            "DJAKOTOMEY":    { lat: 6.8833,  lng: 1.7167 },
+            "DJIDJA":        { lat: 7.3333,  lng: 1.9500 },
+            "DJOUGOU":       { lat: 9.7083,  lng: 1.6667 },
+            "DOGBO":         { lat: 6.8000,  lng: 1.7833 },
+            "GLAZOUÉ":       { lat: 8.0000,  lng: 2.2333 },
+            "GOGOUNOU":      { lat: 10.8333, lng: 2.8333 },
+            "KALALÉ":        { lat: 10.2833, lng: 3.3833 },
+            "KANDI":         { lat: 11.1342, lng: 2.9386 },
+            "KARIMAMA":      { lat: 12.0667, lng: 3.1833 },
+            "KLOUÉKANMÈ":    { lat: 6.9667,  lng: 1.7500 },
+            "KOUANDÉ":       { lat: 10.3333, lng: 1.6833 },
+            "KÉROU":         { lat: 10.8406, lng: 2.1107 },
+            "KÉTOU":         { lat: 7.3633,  lng: 2.5998 },
+            "LALO":          { lat: 6.9167,  lng: 1.8667 },
+            "LOKOSSA":       { lat: 6.6333,  lng: 1.7167 },
+            "MALANVILLE":    { lat: 11.8667, lng: 3.3833 },
+            "MATÉRI":        { lat: 10.7000, lng: 1.0667 },
+            "N'DALI":        { lat: 9.8617,  lng: 2.4018 },
+            "NATITINGOU":    { lat: 10.3167, lng: 1.3833 },
+            "NIKKI":         { lat: 9.9400,  lng: 3.2108 },
+            "OUAKÉ":         { lat: 9.6833,  lng: 1.4167 },
+            "OUINHI":        { lat: 7.0167,  lng: 2.4667 },
+            "OUÈSSE":        { lat: 8.7167,  lng: 2.3833 },
+            "PARAKOU":       { lat: 9.3371,  lng: 2.6291 },
+            "POBÉ":          { lat: 6.9804,  lng: 2.6649 },
+            "PÈRÈRÈ":        { lat: 10.2333, lng: 3.0167 },
+            "PÉHUNCO":       { lat: 10.5833, lng: 1.5333 },
+            "SAVALOU":       { lat: 7.9167,  lng: 1.9750 },
+            "SAVÈ":          { lat: 8.0333,  lng: 2.4833 },
+            "SINENDÉ":       { lat: 10.3275, lng: 2.3782 },
+            "SÉGBANA":       { lat: 10.9333, lng: 3.7000 },
+            "TANGUIÉTA":     { lat: 10.6167, lng: 1.2667 },
+            "TCHAOUROU":     { lat: 8.8833,  lng: 2.5833 },
+            "TOUCOUNTOUNA":  { lat: 10.5333, lng: 1.4167 },
+            "TOVIKLIN":      { lat: 6.8833,  lng: 1.8167 },
+            "ZA-KPOTA":      { lat: 7.1000,  lng: 2.1333 },
+            "ZAGNANADO":     { lat: 7.2500,  lng: 2.3500 },
+            "ZOGBODOMEY":    { lat: 7.0500,  lng: 2.1167 }
+        };
+
+        // Initialisation de la carte Leaflet centrée sur le Bénin
+        const map = L.map('map').setView([9.5, 2.2], 7);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        let activeMarker = null;
+        let batchLayerGroup = L.layerGroup().addTo(map);
+
+        function getCategoryColor(yieldValue) {
+            if (yieldValue >= 1200.0) {
+                return ["#2e8b57", "EXCELLENT"];
+            } else if (yieldValue >= 950.0) {
+                return ["#ffa500", "BON / MOYEN"];
+            } else {
+                return ["#d9534f", "FAIBLE"];
+            }
+        }
+
+        function generateInterpretation(yieldValue, bh) {
+            let texte = `Le modèle de Blending estime un rendement de <b>${yieldValue.toFixed(2)} kg/ha</b>. `;
+            if (yieldValue >= 1200.0) {
+                texte += "Les conditions pédoclimatiques sont hautement favorables au développement capsulaire.";
+            } else if (yieldValue >= 950.0) {
+                texte += "Performance conforme aux normales saisonnières. Vigilance requise quant à la gestion des intrants.";
+            } else {
+                texte += "Alerte : Risque de stress hydrique prononcé ou déficit d'azote limitant la formation de la biomasse.";
+            }
+            texte += ` (Bilan hydrique calculé : ${bh.toFixed(1)} mm)`;
+            return texte;
+        }
+
+        function toggleCommuneInconnue() {
+            const block  = document.getElementById('communeInconnueBlock');
+            const icon   = document.getElementById('toggleIcon');
+            const ball   = document.getElementById('toggleBall');
+            const select = document.getElementById('communeSelect');
+            const isOpen = block.style.display !== 'none';
+            if (isOpen) {
+                block.style.display = 'none';
+                icon.style.background = '#cbd5e1';
+                ball.style.left = '2px';
+                select.disabled = false;
+                select.style.opacity = '1';
+            } else {
+                block.style.display = 'block';
+                icon.style.background = '#2e8b57';
+                ball.style.left = '18px';
+                select.disabled = true;
+                select.style.opacity = '0.4';
+                document.getElementById('communeInconnueInput').focus();
+            }
+        }
+
+        async function predictYield() {
+            const modeInconnu = document.getElementById('communeInconnueBlock').style.display !== 'none';
+            let commune;
+            if (modeInconnu) {
+                commune = document.getElementById('communeInconnueInput').value.trim().toUpperCase();
+                if (!commune) {
+                    alert(' Veuillez saisir le nom de la commune.');
+                    return;
+                }
+            } else {
+                commune = document.getElementById('communeSelect').value;
+            }
+            const btn = document.getElementById('btnPredict');
+            
+            btn.disabled = true;
+            btn.textContent = ' Calcul...';
+            document.getElementById('spinner').style.display = 'block';
+            document.getElementById('resultBox').classList.remove('show');
+
+            const pSemis = parseFloat(document.getElementById('Pluie_Semis_mm').value);
+            const pFlor  = parseFloat(document.getElementById('Pluie_Floraison_mm').value);
+            const pMat   = parseFloat(document.getElementById('Pluie_Maturation_mm').value);
+            const etp    = parseFloat(document.getElementById('ETP_mm').value);
+            const bhCalculated = (pSemis + pFlor + pMat) - etp;
+
+            const payload = {
+                annee: 2026,
+                commune: commune,
+                pH_Sol: parseFloat(document.getElementById('pH_Sol').value),
+                Argile_Perc: parseFloat(document.getElementById('Argile_Perc').value),
+                Azote_g_kg: parseFloat(document.getElementById('Azote_g_kg').value),
+                Pluie_Semis_mm: pSemis,
+                Max_Jours_Secs_Semis: parseInt(document.getElementById('Max_Jours_Secs_Semis').value),
+                Pluie_Floraison_mm: pFlor,
+                Max_Jours_Secs_Floraison: parseInt(document.getElementById('Max_Jours_Secs_Floraison').value),
+                Pluie_Maturation_mm: pMat,
+                Max_Jours_Secs_Maturation: parseInt(document.getElementById('Max_Jours_Secs_Maturation').value),
+                Temp_Max_Moy_C: parseFloat(document.getElementById('Temp_Max_Moy_C').value),
+                Temp_Min_Moy_C: parseFloat(document.getElementById('Temp_Min_Moy_C').value),
+                Humidite_Relative_Perc: parseFloat(document.getElementById('Humidite_Relative_Perc').value),
+                ETP_mm: etp
+            };
+
+            try {
+                const resp = await fetch(API + '/predict', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await resp.json();
+                if (!data.success) throw new Error(data.error);
+
+                const r = data.rendement;
+                const [colorHex, textCat] = getCategoryColor(r);
+
+                document.getElementById('resCommune').textContent = commune;
+                document.getElementById('resVal').textContent = r.toFixed(2);
+                document.getElementById('resVal').style.color = colorHex;
+                
+                const badge = document.getElementById('resBadge');
+                badge.textContent = textCat;
+                badge.style.background = colorHex + '1A';
+                badge.style.color = colorHex;
+
+                // Affichage du modèle utilisé (spatial ou temporel)
+                const modeleLabel = data.modele_utilise === 'spatial'
+                    ? ' Modèle spatial (commune connue)'
+                    : ' Modèle temporel (commune hors périmètre)';
+                document.getElementById('resModele').textContent = modeleLabel;
+
+                // Affichage de l'avertissement si commune inconnue
+                const avertEl = document.getElementById('resAvertissement');
+                if (data.avertissement) {
+                    avertEl.textContent =  data.avertissement;
+                    avertEl.style.display = 'block';
+                } else {
+                    avertEl.style.display = 'none';
+                }
+
+                document.getElementById('resInterp').innerHTML = generateInterpretation(r, bhCalculated);
+                document.getElementById('resultBox').classList.add('show');
+
+                batchLayerGroup.clearLayers();
+                if (activeMarker) map.removeLayer(activeMarker);
+
+                // Résolution des coordonnées : COMMUNES (connues) ou saisie manuelle
+                let coords = COMMUNES[commune];
+                if (!coords) {
+                    const norm = s => s.toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/['\-\s]/g, '');
+                    const match = Object.keys(COMMUNES).find(k => norm(k) === norm(commune));
+                    if (match) coords = COMMUNES[match];
+                }
+                if (!coords && modeInconnu) {
+                    const latVal = parseFloat(document.getElementById('latInconnue').value);
+                    const lngVal = parseFloat(document.getElementById('lngInconnue').value);
+                    if (!isNaN(latVal) && !isNaN(lngVal)) {
+                        coords = { lat: latVal, lng: lngVal };
+                    }
+                }
+
+                if (coords) {
+                    activeMarker = L.circleMarker([coords.lat, coords.lng], {
+                        radius: 15,
+                        fillColor: colorHex,
+                        color: '#fff',
+                        weight: 2,
+                        opacity: 1,
+                        fillOpacity: 0.9
+                    }).addTo(map);
+                    activeMarker.bindPopup(`<b>Commune :</b> ${commune}<br><b>Estimation :</b> ${r.toFixed(2)} kg/ha<br><b>Classe :</b> ${textCat}${modeInconnu ? '<br><i style="color:#b45309">⚠️ Modèle temporel</i>' : ''}`).openPopup();
+                    map.setView([coords.lat, coords.lng], 9, { animate: true });
+                }
+
+            } catch (err) {
+                console.error(err);
+                alert(" Échec de la prédiction unitaire :\n" + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Prédire la commune';
+                document.getElementById('spinner').style.display = 'none';
+            }
+        }
+
+        async function predictAllCommunes() {
+            const btn = document.getElementById('btnPredictAll');
+            btn.disabled = true;
+            btn.textContent = ' Traitement Global...';
+            document.getElementById('spinner').style.display = 'block';
+
+            const pSemis = parseFloat(document.getElementById('Pluie_Semis_mm').value);
+            const pFlor  = parseFloat(document.getElementById('Pluie_Floraison_mm').value);
+            const pMat   = parseFloat(document.getElementById('Pluie_Maturation_mm').value);
+            const etp    = parseFloat(document.getElementById('ETP_mm').value);
+
+            const payload = {
+                annee: 2026,
+                pH_Sol: parseFloat(document.getElementById('pH_Sol').value),
+                Argile_Perc: parseFloat(document.getElementById('Argile_Perc').value),
+                Azote_g_kg: parseFloat(document.getElementById('Azote_g_kg').value),
+                Pluie_Semis_mm: pSemis,
+                Max_Jours_Secs_Semis: parseInt(document.getElementById('Max_Jours_Secs_Semis').value),
+                Pluie_Floraison_mm: pFlor,
+                Max_Jours_Secs_Floraison: parseInt(document.getElementById('Max_Jours_Secs_Floraison').value),
+                Pluie_Maturation_mm: pMat,
+                Max_Jours_Secs_Maturation: parseInt(document.getElementById('Max_Jours_Secs_Maturation').value),
+                Temp_Max_Moy_C: parseFloat(document.getElementById('Temp_Max_Moy_C').value),
+                Temp_Min_Moy_C: parseFloat(document.getElementById('Temp_Min_Moy_C').value),
+                Humidite_Relative_Perc: parseFloat(document.getElementById('Humidite_Relative_Perc').value),
+                ETP_mm: etp,
+                
+                communes: Object.keys(COMMUNES)
+            };
+
+            try {
+                const resp = await fetch(API + '/predict', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await resp.json();
+                if (!data.success) throw new Error(data.error);
+
+                if (activeMarker) map.removeLayer(activeMarker);
+                batchLayerGroup.clearLayers();
+
+                Object.keys(data.results).forEach(communeName => {
+                    const resCommune = data.results[communeName];
+                    if (!resCommune || !resCommune.success || resCommune.rendement == null) return;
+
+                    
+                    let coords = COMMUNES[communeName];
+                    if (!coords) {
+                        const norm = s => s.toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/['\-\s]/g, '');
+                        const match = Object.keys(COMMUNES).find(k => norm(k) === norm(communeName));
+                        if (match) coords = COMMUNES[match];
+                    }
+                    if (!coords) return;
+
+                    const [colorHex, textCat] = getCategoryColor(resCommune.rendement);
+                    L.circleMarker([coords.lat, coords.lng], {
+                        radius: 12,
+                        fillColor: colorHex,
+                        color: '#fff',
+                        weight: 2,
+                        opacity: 1,
+                        fillOpacity: 0.8
+                    })
+                    .addTo(batchLayerGroup)
+                    .bindPopup(`<b>Commune :</b> ${communeName}<br><b>Rendement :</b> ${resCommune.rendement.toFixed(2)} kg/ha<br><b>Classe :</b> ${textCat}<br><b>Modèle :</b> ${resCommune.modele_utilise || '—'}`);
+                });
+
+                map.setView([9.5, 2.2], 7);
+                alert(" Cartographie globale mise à jour avec succès ! Cliquez sur les cercles pour analyser les rendements par commune.");
+
+            } catch (err) {
+                console.error(err);
+                alert(" Échec de l'analyse globale :\n" + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Cartographier tout le Bénin';
+                document.getElementById('spinner').style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
