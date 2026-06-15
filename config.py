@@ -8,7 +8,7 @@ class Config:
     
     PROJECT_ROOT: Path = Path(__file__).parent
     DATA_DIR: Path = PROJECT_ROOT   
-    OUTPUT_DIR: Path = PROJECT_ROOT 
+    OUTPUT_DIR: Path = 
     EDA_DIR: Path = PROJECT_ROOT / "eda"
     
     RAW_DATASET: str = "dataset_meteo_stress_benin.csv"
