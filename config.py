@@ -15,7 +15,7 @@ class Config:
     CLEANED_DATASET: str = "dataset_nettoye.csv"
     SOIL_DATASET: str = "dataset_sol_benin.csv"
     
-    MODEL_PATH: str = "meilleur_modele_spcrc.json"
+    MODEL_PATH: str = "meilleur_modele_spatial.json"
     SCALER_PATH: str = "scaler_spcrc.json"
     ENCODING_MAPPING_PATH: str = "mapping_communes_target_encoding.json"
     FEATURES_PATH: str = "structure_features.txt"
