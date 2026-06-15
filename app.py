@@ -18,7 +18,7 @@ except Exception as e:
 
 @app.route('/')
 def home():
-    return ( 'generer_carte.html')
+    return send_from_directory('.', 'generer_carte.html')
 
 
 @app.route('/predict', methods=['POST'])
