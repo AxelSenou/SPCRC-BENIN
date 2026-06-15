@@ -1,7 +1,7 @@
 import unicodedata
 import numpy as np
 import pandas as pd
-import joblib
+import json
 from pathlib import Path
 from config import config
 
