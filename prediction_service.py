@@ -83,7 +83,7 @@ class PredictionService:
             self.features_spatial = f.read().strip().split(',')
 
         # ── Modèle TEMPOREL ───────────────────────────────────────────────────
-        self.model_temporel  = joblib.load(base / self.MODELE_TEMPOREL)
+        self.model_temporel  = json.load(base / self.MODELE_TEMPOREL)
         self.scaler_temporel = joblib.load(base / self.SCALER_TEMPOREL)
 
         features_temp_path = base / self.FEATURES_TEMPOREL
