@@ -1,7 +1,6 @@
 flask
 flask-cors
-scikit-learn
-RandomForestRegressor
+scikit-learn==1.8.0
 pandas
 numpy
 joblib
