@@ -15,8 +15,8 @@ class Config:
     SOIL_DATASET:    str = "dataset_sol_benin.csv"
 
     # Extensions .joblib cohérentes avec joblib.dump()
-    MODEL_PATH:    str = "meilleur_modele_spcrc.joblib"
-    SCALER_PATH:   str = "scaler_spcrc.joblib"
+    MODEL_PATH:    str = "meilleur_modele_spatial.joblib"
+    SCALER_PATH:   str = "scaler_spatial.joblib"
     FEATURES_PATH: str = "structure_features.txt"
 
     TARGET_COL:       str       = "Rendement_kg_ha"
