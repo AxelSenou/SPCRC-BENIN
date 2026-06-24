@@ -24,7 +24,7 @@ print(f"\n{SEP}")
 print("  SPCRC-BÉNIN · PIPELINE TEMPOREL v15.4 — PÉDOCLIMATIQUE PUR")
 print(SEP)
 
-# ── 1. Chargement ─────────────────────────────────────────────────────────────
+#  Chargement 
 df_brut = load_and_clean()
 y_brut  = df_brut['Rendement_kg_ha'].values
 bins_y  = pd.qcut(y_brut, q=4, labels=False, duplicates='drop')
@@ -32,18 +32,18 @@ print(f"\n  Dataset : {df_brut.shape[0]} lignes | "
       f"{df_brut['Commune'].nunique()} communes | "
       f"{df_brut['Annee'].min()}-{df_brut['Annee'].max()}")
 
-# ── 2. Split stratifié ────────────────────────────────────────────────────────
+#  Split 
 df_train_raw, df_test_raw = train_test_split(
     df_brut, test_size=config.TEST_SIZE,
     random_state=config.RANDOM_STATE, stratify=bins_y
 )
-print(f"\n✓ Split stratifié : {len(df_train_raw)} train | {len(df_test_raw)} test")
+print(f"\n Split stratifié : {len(df_train_raw)} train | {len(df_test_raw)} test")
 print(f"  Communes train : {df_train_raw['Commune'].nunique()} | "
       f"Communes test : {df_test_raw['Commune'].nunique()}")
 
 mean_temp_max_train = float(df_train_raw['Temp_Max_Moy_C'].mean())
 
-# ── 3. Feature Engineering ────────────────────────────────────────────────────
+#  Feature Engineering
 df_train_fe = create_all_features(df_train_raw)
 df_test_fe  = create_all_features(df_test_raw)
 
@@ -59,9 +59,9 @@ scaler_X       = StandardScaler()
 X_train_scaled = scaler_X.fit_transform(X_train_df.values)
 X_test_scaled  = scaler_X.transform(df_test_fe[liste_colonnes].values)
 
-# ── 4. Sélection des features (ExtraTrees — top 16) ──────────────────────────
+#  Sélection des features 
 print(f"\n{SEP2}")
-print("  SÉLECTION DES FEATURES (ExtraTrees — top 16)")
+print("  SÉLECTION DES FEATURES ")
 print(SEP2)
 
 selector = ExtraTreesRegressor(n_estimators=300, random_state=config.RANDOM_STATE, n_jobs=-1)
@@ -79,13 +79,13 @@ print(f"  {'-'*52}")
 for i, idx in enumerate(np.argsort(imp)[::-1][:16]):
     print(f"  {i+1:2d}. {liste_colonnes[idx]:<37} {imp[idx]:.4f}")
 
-# ── 5. Entraînement ───────────────────────────────────────────────────────────
+#  Entraînement
 print(f"\n{SEP2}")
 print("  ENTRAÎNEMENT")
 print(SEP2)
 
 dictionnaire_modeles = {
-    "RandomForest_Temp_v15": RandomForestRegressor(
+    "RandomForest_Temp": RandomForestRegressor(
         n_estimators=300,
         max_depth=6,
         min_samples_leaf=4,
@@ -94,7 +94,7 @@ dictionnaire_modeles = {
         random_state=config.RANDOM_STATE,
         n_jobs=-1
     ),
-    "XGBoost_Temp_v15": xgb.XGBRegressor(
+    "XGBoost_Temp": xgb.XGBRegressor(
         n_estimators=300,
         learning_rate=0.02,
         max_depth=4,
@@ -109,21 +109,21 @@ dictionnaire_modeles = {
 }
 
 for nom, mod in dictionnaire_modeles.items():
-    print(f"\n  → {nom}")
+    print(f"\n {nom}")
     mod.fit(X_train_sel, y_train)
     if hasattr(mod, 'oob_score_'):
-        print(f"     OOB R²    : {mod.oob_score_:.4f}")
+        print(f" OOB R²    : {mod.oob_score_:.4f}")
     r2_tr  = r2_score(y_train, mod.predict(X_train_sel))
     r2_te  = r2_score(y_test,  mod.predict(X_test_sel))
     mae_te = mean_absolute_error(y_test, mod.predict(X_test_sel))
     rmse   = np.sqrt(mean_squared_error(y_test, mod.predict(X_test_sel)))
     ecart  = r2_tr - r2_te
     print(f"     R² Train  : {r2_tr:.4f}")
-    print(f"     R² Test   : {r2_te:.4f}  (écart={ecart:.4f} {'✓ OK' if ecart < 0.25 else '⚠ Overfitting'})")
+    print(f"     R² Test   : {r2_te:.4f}  (écart={ecart:.4f} {'OK' if ecart < 0.25 else ' Overfitting'})")
     print(f"     MAE Test  : {mae_te:.2f} kg/ha")
     print(f"     RMSE Test : {rmse:.2f} kg/ha")
 
-# ── 6. Validation croisée ─────────────────────────────────────────────────────
+#  Validation croisée 
 print(f"\n{SEP2}")
 print("  VALIDATION CROISÉE 5-FOLD")
 print(SEP2)
@@ -137,7 +137,7 @@ for nom, mod in dictionnaire_modeles.items():
           f"(folds: {[f'{v:.3f}' for v in cv_r2]})")
     print(f"     CV MAE : {(-cv_mae).mean():.2f} ± {(-cv_mae).std():.2f} kg/ha")
 
-# ── 7. Champion ───────────────────────────────────────────────────────────────
+#  Champion 
 resultats      = compare_models(dictionnaire_modeles, X_test_sel, y_test)
 nom_gagnant    = resultats["winner"]
 modele_gagnant = resultats["winner_model"]
@@ -149,11 +149,11 @@ wmape          = resultats["scores"][nom_gagnant]["wMAPE"]
 ecart_final    = r2_score(y_train, modele_gagnant.predict(X_train_sel)) - r2
 
 print(f"\n{SEP}")
-print("  RAPPORT FINAL — MODÈLE TEMPOREL v15.4")
+print("  RAPPORT FINAL — MODÈLE TEMPOREL ")
 print(SEP)
 print(f"  Modèle Champion : {nom_gagnant}")
-print(f"  R²  Test        : {r2:.4f}   {'✓ BON' if r2 >= 0.45 else '△ ACCEPTABLE' if r2 >= 0.28 else '⚠ FAIBLE'}")
-print(f"  Écart train/test: {ecart_final:.4f}  {'✓ OK' if ecart_final < 0.25 else '⚠ Overfitting résiduel'}")
+print(f"  R²  Test        : {r2:.4f}   {' BON' if r2 >= 0.45 else ' ACCEPTABLE' if r2 >= 0.28 else '⚠ FAIBLE'}")
+print(f"  Écart train/test: {ecart_final:.4f}  {' OK' if ecart_final < 0.25 else ' Overfitting résiduel'}")
 print(f"  MAE Test        : {mae:.2f} kg/ha")
 print(f"  RMSE Test       : {rmse:.2f} kg/ha")
 print(f"  wMAPE           : {wmape:.2f}%")
@@ -169,10 +169,8 @@ if hasattr(modele_gagnant, 'feature_importances_'):
         cumul += imp2[idx]
         print(f"  {i+1:2d}. {features_sel[idx]:<35} {imp2[idx]:.4f}    {cumul:.4f}")
 
-# ── 8. Exportation ────────────────────────────────────────────────────────────
+#  Exportation 
 config.OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-
-# IMPORTANT : extension .joblib (cohérent avec prediction_service.py)
 joblib.dump(modele_gagnant, config.OUTPUT_DIR / "meilleur_modele_temporel.joblib")
 joblib.dump(scaler_X,       config.OUTPUT_DIR / "scaler_temporel.joblib")
 
@@ -187,16 +185,16 @@ global_stats = {
 with open(config.OUTPUT_DIR / "statistiques_globales.json", "w", encoding="utf-8") as f:
     json.dump(global_stats, f, indent=2, ensure_ascii=False)
 
-print(f"\n✓ Artefacts temporels v15.4 exportés → {config.OUTPUT_DIR}")
+print(f"\n Artefacts temporels {config.OUTPUT_DIR}")
 
-# ── 9. Graphiques ────────────────────────────────────────────────────────────
+#Graphiques 
 fig, axes = plt.subplots(1, 3, figsize=(18, 5), dpi=config.DPI)
 
 axes[0].scatter(y_test, preds_test, color="mediumvioletred", alpha=0.6, edgecolors='k', s=50)
 axes[0].plot([y_test.min(), y_test.max()], [y_test.min(), y_test.max()], 'r--', lw=2)
 axes[0].set_xlabel("Rendements Observés (kg/ha)")
 axes[0].set_ylabel("Rendements Estimés (kg/ha)")
-axes[0].set_title(f"Temporel v15.4 — {nom_gagnant}\nR²={r2:.3f} | MAE={mae:.0f} kg/ha")
+axes[0].set_title(f"Temporel  {nom_gagnant}\nR²={r2:.3f} | MAE={mae:.0f} kg/ha")
 axes[0].grid(True, linestyle="--", alpha=0.4)
 
 residus = preds_test - y_test
@@ -218,6 +216,6 @@ if hasattr(modele_gagnant, 'feature_importances_'):
     axes[2].grid(True, axis='x', linestyle="--", alpha=0.4)
 
 plt.tight_layout()
-plt.savefig(config.OUTPUT_DIR / "evaluation_temporelle_v15.png", bbox_inches='tight')
+plt.savefig(config.OUTPUT_DIR / "evaluation_temporelle.png", bbox_inches='tight')
 plt.close()
-print("✓ Graphiques sauvegardés.")
+print(" Graphiques sauvegardés.")
