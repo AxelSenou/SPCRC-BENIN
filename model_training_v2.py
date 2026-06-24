@@ -21,7 +21,7 @@ SEP  = "=" * 70
 SEP2 = "-" * 70
 
 print(f"\n{SEP}")
-print("  SPCRC-BÉNIN · PIPELINE TEMPOREL v15.4 — PÉDOCLIMATIQUE PUR")
+print("  SPCRC-BÉNIN · PIPELINE TEMPOREL")
 print(SEP)
 
 #  Chargement 
@@ -152,7 +152,7 @@ print(f"\n{SEP}")
 print("  RAPPORT FINAL — MODÈLE TEMPOREL ")
 print(SEP)
 print(f"  Modèle Champion : {nom_gagnant}")
-print(f"  R²  Test        : {r2:.4f}   {' BON' if r2 >= 0.45 else ' ACCEPTABLE' if r2 >= 0.28 else '⚠ FAIBLE'}")
+print(f"  R²  Test        : {r2:.4f}   {' BON' if r2 >= 0.45 else ' ACCEPTABLE' if r2 >= 0.28 else ' FAIBLE'}")
 print(f"  Écart train/test: {ecart_final:.4f}  {' OK' if ecart_final < 0.25 else ' Overfitting résiduel'}")
 print(f"  MAE Test        : {mae:.2f} kg/ha")
 print(f"  RMSE Test       : {rmse:.2f} kg/ha")
