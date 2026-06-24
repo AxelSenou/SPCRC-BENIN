@@ -1,8 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-SPCRC-Bénin — Pipeline Spatial v15.0
-Features purement pédoclimatiques — split spatial GroupShuffleSplit
-"""
 import json
 import pandas as pd
 import numpy as np
@@ -29,14 +24,14 @@ print(f"\n{SEP}")
 print("  SPCRC-BÉNIN · PIPELINE SPATIAL v15.0 — PÉDOCLIMATIQUE PUR")
 print(SEP)
 
-# ── 1. Chargement ─────────────────────────────────────────────────────────────
+#  Chargement 
 df_brut = load_and_clean()
 groupes_communes = df_brut['Commune'].values
 print(f"\n  Dataset : {df_brut.shape[0]} lignes | "
       f"{df_brut['Commune'].nunique()} communes | "
       f"{df_brut['Annee'].min()}-{df_brut['Annee'].max()}")
 
-# ── 2. Split spatial ──────────────────────────────────────────────────────────
+# Split spatial 
 gss = GroupShuffleSplit(n_splits=1, test_size=config.TEST_SIZE,
                         random_state=config.RANDOM_STATE)
 train_idx, test_idx = next(gss.split(df_brut, groups=groupes_communes))
@@ -46,10 +41,10 @@ df_test_raw  = df_brut.iloc[test_idx].copy()
 communes_train = sorted(df_train_raw['Commune'].unique())
 communes_test  = sorted(df_test_raw['Commune'].unique())
 
-print(f"\n✓ Split spatial : {len(communes_train)} communes train | {len(communes_test)} test")
+print(f"\n Split spatial : {len(communes_train)} communes train | {len(communes_test)} test")
 print(f"  Communes TEST : {communes_test}")
 
-# ── 3. Feature Engineering ────────────────────────────────────────────────────
+#  Feature Engineering
 df_train_fe = create_all_features(df_train_raw)
 df_test_fe  = create_all_features(df_test_raw)
 
@@ -68,7 +63,7 @@ scaler_X       = StandardScaler()
 X_train_scaled = scaler_X.fit_transform(X_train_df.values)
 X_test_scaled  = scaler_X.transform(df_test_fe[liste_colonnes].values)
 
-# ── 4. Sélection des features (ExtraTrees) ────────────────────────────────────
+#  Sélection des features 
 print(f"\n{SEP2}")
 print("  SÉLECTION DES FEATURES (ExtraTrees — top 16)")
 print(SEP2)
@@ -88,9 +83,9 @@ print(f"  {'-'*52}")
 for i, idx in enumerate(np.argsort(imp)[::-1][:16]):
     print(f"  {i+1:2d}. {liste_colonnes[idx]:<37} {imp[idx]:.4f}")
 
-# ── 5. Modèles ────────────────────────────────────────────────────────────────
+#  Modèles 
 print(f"\n{SEP2}")
-print("  ENTRAÎNEMENT")
+print(" ENTRAÎNEMENT")
 print(SEP2)
 
 dictionnaire_modeles = {
@@ -110,7 +105,7 @@ dictionnaire_modeles = {
 }
 
 for nom, mod in dictionnaire_modeles.items():
-    print(f"\n  → {nom}")
+    print(f"\n  {nom}")
     mod.fit(X_train_sel, y_train)
     if hasattr(mod, 'oob_score_'):
         print(f"     OOB R²    : {mod.oob_score_:.4f}")
@@ -124,7 +119,7 @@ for nom, mod in dictionnaire_modeles.items():
     print(f"     MAE Test  : {mae_te:.2f} kg/ha")
     print(f"     RMSE Test : {rmse:.2f} kg/ha")
 
-# ── 6. Validation croisée ─────────────────────────────────────────────────────
+# Validation croisée 
 print(f"\n{SEP2}")
 print("  VALIDATION CROISÉE 5-FOLD")
 print(SEP2)
@@ -138,7 +133,7 @@ for nom, mod in dictionnaire_modeles.items():
           f"(folds: {[f'{v:.3f}' for v in cv_r2]})")
     print(f"     CV MAE : {(-cv_mae).mean():.2f} ± {(-cv_mae).std():.2f} kg/ha")
 
-# ── 7. Champion ───────────────────────────────────────────────────────────────
+#  Champion
 resultats      = compare_models(dictionnaire_modeles, X_test_sel, y_test)
 nom_gagnant    = resultats["winner"]
 modele_gagnant = resultats["winner_model"]
@@ -170,7 +165,7 @@ if hasattr(modele_gagnant, 'feature_importances_'):
         cumul += imp2[idx]
         print(f"  {i+1:2d}. {features_sel[idx]:<35} {imp2[idx]:.4f}    {cumul:.4f}")
 
-# ── 8. Exportation ────────────────────────────────────────────────────────────
+#  Exportation 
 config.OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 joblib.dump(modele_gagnant, config.OUTPUT_DIR / config.MODEL_PATH)
 joblib.dump(scaler_X,       config.OUTPUT_DIR / config.SCALER_PATH)
@@ -190,16 +185,16 @@ global_stats = {
 with open(config.OUTPUT_DIR / "statistiques_globales.json", "w", encoding="utf-8") as f:
     json.dump(global_stats, f, indent=2, ensure_ascii=False)
 
-print(f"\n✓ Artefacts spatiaux v15.0 exportés → {config.OUTPUT_DIR}")
+print(f"\n Artefacts spatiaux {config.OUTPUT_DIR}")
 
-# ── 9. Graphiques ─────────────────────────────────────────────────────────────
+#  Graphiques
 fig, axes = plt.subplots(1, 3, figsize=(18, 5), dpi=config.DPI)
 
 axes[0].scatter(y_test, preds_test, color="teal", alpha=0.6, edgecolors='k', s=50)
 axes[0].plot([y_test.min(), y_test.max()], [y_test.min(), y_test.max()], 'r--', lw=2)
 axes[0].set_xlabel("Rendements Réels (kg/ha)")
 axes[0].set_ylabel("Rendements Prédits (kg/ha)")
-axes[0].set_title(f"Spatial v15.0 — {nom_gagnant}\nR²={r2:.3f} | MAE={mae:.0f} kg/ha")
+axes[0].set_title(f"Spatial  — {nom_gagnant}\nR²={r2:.3f} | MAE={mae:.0f} kg/ha")
 axes[0].grid(True, linestyle="--", alpha=0.4)
 
 residus = preds_test - y_test
@@ -221,6 +216,6 @@ if hasattr(modele_gagnant, 'feature_importances_'):
     axes[2].grid(True, axis='x', linestyle="--", alpha=0.4)
 
 plt.tight_layout()
-plt.savefig(config.OUTPUT_DIR / "evaluation_spatiale_v15.png", bbox_inches='tight')
+plt.savefig(config.OUTPUT_DIR / "evaluation_spatiale.png", bbox_inches='tight')
 plt.close()
-print("✓ Graphiques sauvegardés.")
+print(" Graphiques sauvegardés")
