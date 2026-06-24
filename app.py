@@ -1,8 +1,4 @@
-# -*- coding: utf-8 -*-
-"""
-SPCRC-Bénin — Serveur Flask v15.0
-Prédiction unitaire et batch (cartographie globale)
-"""
+
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 from collections import deque
@@ -20,9 +16,9 @@ historique_predictions = deque(maxlen=10)
 
 try:
     prediction_service = PredictionService()
-    print("✓ Service de prédiction SPCRC-Bénin v15.0 initialisé.")
+    print(" Service de prédiction SPCRC-Bénin v15.0 initialisé.")
 except Exception as e:
-    print(f"❌ Erreur critique : {str(e)}")
+    print(f" Erreur critique : {str(e)}")
     prediction_service = None
 
 
@@ -49,7 +45,7 @@ def predict():
         if not donnees:
             return jsonify({'success': False, 'error': 'Requête JSON manquante.'}), 400
 
-        # ── Requête multi-communes (cartographie globale) ─────────────────────
+        #  Requête multi-communes (cartographie globale) 
         if "communes" in donnees and isinstance(donnees["communes"], list):
             resultats_global = {}
             for commune in donnees["communes"]:
@@ -60,7 +56,7 @@ def predict():
                 'results': resultats_global
             }), 200
 
-        # ── Requête unitaire ──────────────────────────────────────────────────
+        #Requête unitaire 
         commune_brute = donnees.get('commune') or donnees.get('Commune')
         if not commune_brute:
             return jsonify({'success': False, 'error': 'Le champ commune est requis.'}), 400
@@ -83,7 +79,6 @@ def predict():
 
 @app.route('/predict_batch_csv', methods=['POST'])
 def predict_batch_csv():
-    """Upload CSV et prédiction ligne par ligne"""
     if not prediction_service:
         return jsonify({'success': False, 'error': 'Service non initialisé.'}), 500
 
