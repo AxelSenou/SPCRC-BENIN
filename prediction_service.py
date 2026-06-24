@@ -1,8 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-SPCRC-Bénin — Service de Prédiction v15.0
-Features purement pédoclimatiques — dual-modèle spatial/temporel
-"""
 import json
 import joblib
 import unicodedata
@@ -21,19 +16,19 @@ class PredictionService:
     def __init__(self):
         base = config.OUTPUT_DIR
 
-        # ── Modèle SPATIAL ────────────────────────────────────────────────────
+        # Modèle SPATIAL 
         self.model_spatial  = joblib.load(base / config.MODEL_PATH)
         self.scaler_spatial = joblib.load(base / config.SCALER_PATH)
         with open(base / config.FEATURES_PATH, 'r', encoding='utf-8') as f:
             self.features_spatial = f.read().strip().split(',')
 
-        # ── Modèle TEMPOREL ───────────────────────────────────────────────────
+        #  Modèle TEMPOREL 
         self.model_temporel  = joblib.load(base / self.MODELE_TEMPOREL)
         self.scaler_temporel = joblib.load(base / self.SCALER_TEMPOREL)
         with open(base / self.FEATURES_TEMPOREL, 'r', encoding='utf-8') as f:
             self.features_temporel = f.read().strip().split(',')
 
-        # ── Communes connues ──────────────────────────────────────────────────
+        # Communes connues
         communes_path = base / "communes_connues.txt"
         if communes_path.exists():
             with open(communes_path, 'r', encoding='utf-8') as f:
@@ -43,7 +38,7 @@ class PredictionService:
         else:
             self.communes_connues = set()
 
-        # ── Statistiques globales (mean_temp_max pour Dev_Thermique) ─────────
+        # Statistiques globales 
         stats_path = base / "statistiques_globales.json"
         if stats_path.exists():
             with open(stats_path, 'r', encoding='utf-8') as f:
@@ -53,14 +48,13 @@ class PredictionService:
 
         self.mean_temp_max = self.global_stats.get('mean_temp_max_historique', 33.5)
 
-        print(f"✓ Service SPCRC chargé — Dual-modèle pédoclimatique :")
-        print(f"  • Modèle spatial  : {len(self.features_spatial)} features "
+        print(f" Service SPCRC chargé — Dual-modèle pédoclimatique :")
+        print(f"   Modèle spatial  : {len(self.features_spatial)} features "
               f"| {len(self.communes_connues)} communes connues")
-        print(f"  • Modèle temporel : {len(self.features_temporel)} features "
+        print(f"   Modèle temporel : {len(self.features_temporel)} features "
               f"| fallback universel")
-        print(f"  • Temp max nationale : {self.mean_temp_max:.2f}°C")
+        print(f"  Temp max nationale : {self.mean_temp_max:.2f}°C")
 
-    # ── Utilitaires ───────────────────────────────────────────────────────────
     @staticmethod
     def _normaliser(nom: str) -> str:
         nfkd = unicodedata.normalize('NFD', str(nom))
@@ -83,7 +77,7 @@ class PredictionService:
             return "BON / MOYEN"
         return "FAIBLE"
 
-    # ── Feature Engineering (miroir de feature_engineering.py) ───────────────
+    #  Feature Engineering 
     def _build_features(self, data_raw: dict) -> pd.DataFrame:
         p_semis = float(data_raw.get('Pluie_Semis_mm',      352.4))
         p_flor  = float(data_raw.get('Pluie_Floraison_mm',  573.7))
@@ -163,7 +157,7 @@ class PredictionService:
                 df[col] = 0.0
         return scaler.transform(df[features].values)
 
-    # ── Prédiction unitaire (endpoint /predict JSON) ──────────────────────────
+    #  Prédiction unitaire 
     def predict(self, data_raw: dict, commune: str) -> dict:
         try:
             commune_clean = str(commune).upper().strip()
@@ -199,7 +193,7 @@ class PredictionService:
         except Exception as e:
             return {'success': False, 'error': f"Erreur : {str(e)}"}
 
-    # ── Compatibilité app.py (predict_unitaire) ───────────────────────────────
+    # Compatibilité app.py 
     def predict_unitaire(self, data_dict: dict) -> float:
         commune = str(data_dict.get('Commune', '')).upper().strip()
         res = self.predict(data_dict, commune)
@@ -207,7 +201,7 @@ class PredictionService:
             raise ValueError(res['error'])
         return res['rendement']
 
-    # ── Prédiction batch ──────────────────────────────────────────────────────
+    #  Prédiction batch
     def predict_batch(self, payload: dict) -> dict:
         return {commune: self.predict(variables, commune)
                 for commune, variables in payload.items()}
