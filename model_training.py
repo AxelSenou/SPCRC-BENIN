@@ -21,7 +21,7 @@ SEP  = "=" * 70
 SEP2 = "-" * 70
 
 print(f"\n{SEP}")
-print("  SPCRC-BÉNIN · PIPELINE SPATIAL v15.0 — PÉDOCLIMATIQUE PUR")
+print("SPCRC-BÉNIN · PIPELINE SPATIAL")
 print(SEP)
 
 #  Chargement 
@@ -65,7 +65,7 @@ X_test_scaled  = scaler_X.transform(df_test_fe[liste_colonnes].values)
 
 #  Sélection des features 
 print(f"\n{SEP2}")
-print("  SÉLECTION DES FEATURES (ExtraTrees — top 16)")
+print("  SÉLECTION DES FEATURES ")
 print(SEP2)
 
 selector = ExtraTreesRegressor(n_estimators=300, random_state=config.RANDOM_STATE, n_jobs=-1)
@@ -89,13 +89,13 @@ print(" ENTRAÎNEMENT")
 print(SEP2)
 
 dictionnaire_modeles = {
-    "RandomForest_Spat_v15": RandomForestRegressor(
+    "RandomForest_Spat": RandomForestRegressor(
         n_estimators=500, max_depth=8,
         min_samples_split=4, min_samples_leaf=3,
         max_features='sqrt', bootstrap=True, oob_score=True,
         random_state=config.RANDOM_STATE, n_jobs=-1
     ),
-    "XGBoost_Spat_v15": xgb.XGBRegressor(
+    "XGBoost_Spat": xgb.XGBRegressor(
         n_estimators=500, max_depth=4, learning_rate=0.02,
         subsample=0.75, colsample_bytree=0.65,
         min_child_weight=5, gamma=0.3,
@@ -115,7 +115,7 @@ for nom, mod in dictionnaire_modeles.items():
     rmse   = np.sqrt(mean_squared_error(y_test, mod.predict(X_test_sel)))
     ecart  = r2_tr - r2_te
     print(f"     R² Train  : {r2_tr:.4f}")
-    print(f"     R² Test   : {r2_te:.4f}  (écart={ecart:.4f} {'✓ OK' if ecart < 0.25 else '⚠ Overfitting'})")
+    print(f"     R² Test   : {r2_te:.4f}  (écart={ecart:.4f} {' OK' if ecart < 0.25 else ' Overfitting'})")
     print(f"     MAE Test  : {mae_te:.2f} kg/ha")
     print(f"     RMSE Test : {rmse:.2f} kg/ha")
 
@@ -145,11 +145,11 @@ wmape          = resultats["scores"][nom_gagnant]["wMAPE"]
 ecart_final    = r2_score(y_train, modele_gagnant.predict(X_train_sel)) - r2
 
 print(f"\n{SEP}")
-print("  RAPPORT FINAL — MODÈLE SPATIAL v15.0")
+print("  RAPPORT FINAL — MODÈLE SPATIAL ")
 print(SEP)
 print(f"  Modèle Champion : {nom_gagnant}")
-print(f"  R²  Test        : {r2:.4f}   {'✓ BON' if r2 >= 0.45 else '△ ACCEPTABLE' if r2 >= 0.28 else '⚠ FAIBLE'}")
-print(f"  Écart train/test: {ecart_final:.4f}  {'✓ OK' if ecart_final < 0.25 else '⚠ Overfitting résiduel'}")
+print(f"  R²  Test        : {r2:.4f}   {' BON' if r2 >= 0.45 else ' ACCEPTABLE' if r2 >= 0.28 else 'FAIBLE'}")
+print(f"  Écart train/test: {ecart_final:.4f}  {' OK' if ecart_final < 0.25 else ' Overfitting résiduel'}")
 print(f"  MAE Test        : {mae:.2f} kg/ha")
 print(f"  RMSE Test       : {rmse:.2f} kg/ha")
 print(f"  wMAPE           : {wmape:.2f}%")
