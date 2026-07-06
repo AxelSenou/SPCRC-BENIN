@@ -120,4 +120,4 @@ joblib.dump(pca, config.OUTPUT_DIR / "pca_spatial.joblib")
 with open(config.OUTPUT_DIR / "features_spatial.txt", "w", encoding="utf-8") as f:
     f.write(",".join(features_names))
 
-print(f"\n Artefacts et modèle spatial sauvegardés avec succès dans {config.OUTPUT_DIR}")
+print(f"\nArtefacts et modèle spatial sauvegardés avec succès dans {config.OUTPUT_DIR}")
