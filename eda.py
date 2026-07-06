@@ -1,4 +1,3 @@
-
 import warnings
 import pandas as pd
 import numpy as np
@@ -12,19 +11,15 @@ print("\n" + "=" * 80)
 print("  ANALYSE EXPLORATOIRE DES DONNÉES (EDA)")
 print("=" * 80)
 
-# =====================================================================
-# 1. CHARGEMENT ET FEATURES
-# =====================================================================
-print("\n[PHASE 1] Chargement des données...")
+# CHARGEMENT ET FEATURES
+print("\n Chargement des données...")
 df_raw = load_and_clean()
 
-print("\n[PHASE 2] Engineering des features...")
+print("\n Engineering des features...")
 df = create_all_features(df_raw)
 
-# =====================================================================
-# 3. ANALYSES VISUELLES
-# =====================================================================
-print("\n[PHASE 3] Génération des visualisations...")
+#  ANALYSES VISUELLES
+print("\n Génération des visualisations...")
 
 # Statistiques descriptives
 cols_num = df.select_dtypes(include=[np.number]).columns
@@ -32,7 +27,7 @@ stats = df[cols_num].describe().T
 stats['skewness'] = df[cols_num].skew()
 stats['kurtosis'] = df[cols_num].kurt()
 stats.to_csv(config.EDA_DIR / "rapport_statistiques_univariees.csv")
-print(f"✓ Statistiques univariées exportées")
+print(f" Statistiques univariées exportées")
 
 # Plot 01 : Distribution du rendement
 plt.figure(figsize=(10, 5))
@@ -49,7 +44,7 @@ plt.grid(True, alpha=0.3)
 plt.tight_layout()
 plt.savefig(config.EDA_DIR / "01_distribution_rendement.png", dpi=config.DPI)
 plt.close()
-print("✓ Plot 01 : Distribution")
+print(" Plot 01 : Distribution")
 
 # Plot 02 : Variabilité géographique
 plt.figure(figsize=(12, 6))
@@ -63,7 +58,7 @@ plt.grid(True, axis='y', alpha=0.3)
 plt.tight_layout()
 plt.savefig(config.EDA_DIR / "02_variabilite_geographique.png", dpi=config.DPI)
 plt.close()
-print("✓ Plot 02 : Variabilité géographique")
+print(" Plot 02 : Variabilité géographique")
 
 # Plot 03 : Trajectoire temporelle
 plt.figure(figsize=(10, 5))
@@ -79,7 +74,7 @@ plt.grid(True, alpha=0.3)
 plt.tight_layout()
 plt.savefig(config.EDA_DIR / "03_evolution_temporelle.png", dpi=config.DPI)
 plt.close()
-print("✓ Plot 03 : Évolution temporelle")
+print(" Plot 03 : Évolution temporelle")
 
 # Plot 04 : Matrice de corrélation
 plt.figure(figsize=(15, 13))
@@ -91,7 +86,7 @@ plt.title("Matrice de Corrélations Multi-Variées", fontsize=14, fontweight='bo
 plt.tight_layout()
 plt.savefig(config.EDA_DIR / "04_matrice_correlation_interne.png", dpi=config.DPI)
 plt.close()
-print("✓ Plot 04 : Matrice de corrélation")
+print(" Plot 04 : Matrice de corrélation")
 
 # Plot 05 : Sensibilité au rendement
 corr_target = corr_matrix[config.TARGET_COL].drop(config.TARGET_COL).sort_values(ascending=False)
@@ -106,7 +101,7 @@ plt.grid(True, axis='x', alpha=0.3)
 plt.tight_layout()
 plt.savefig(config.EDA_DIR / "05_sensibilite_directe_facteurs.png", dpi=config.DPI)
 plt.close()
-print("✓ Plot 05 : Sensibilité")
+print(" Plot 05 : Sensibilité")
 
-print(f"\n✓ EDA complétée - Fichiers dans : {config.EDA_DIR}")
+print(f"\n EDA complétée - Fichiers dans : {config.EDA_DIR}")
 print("=" * 80)
