@@ -101,20 +101,64 @@
         <div class="sidebar">
             
             <div class="card">
-                <div class="card-title">📍 Paramètres de Simulation</div>
+                <div class="card-title">Paramètres de Simulation</div>
                 <form id="apiForm" onsubmit="appelerAPI(event)">
                     <div class="form-group">
                         <label for="commune">Commune cible</label>
                         <select id="commune" required>
-                            <option value="BANIKOARA">BANIKOARA</option>
-                            <option value="KANDI">KANDI</option>
-                            <option value="BEMBEREKE">BEMBÈRÈKÈ</option>
-                            <option value="DJOUGOU">DJOUGOU</option>
-                            <option value="TCHAOUROU">TCHAOUROU</option>
-                            <option value="GOGOUNOU">GOGOUNOU</option>
-                            <option value="BASSILA">BASSILA</option>
-                            <option value="DASSA-ZOUME">DASSA-ZOUMÈ</option>
-                            <option value="SAVALOU">SAVALOU</option>
+                        <option value="ABOMEY">ABOMEY</option>
+                                <option value="ADJA-OUERE">ADJA-OUÈRÈ</option>
+                                <option value="AGBANGNIZOUN">AGBANGNIZOUN</option>
+                                <option value="APLAHOUÉ">APLAHOUÉ</option>
+                                <option value="BANIKOARA">BANIKOARA</option>
+                                <option value="BANTÈ">BANTÈ</option>
+                                <option value="BASSILA">BASSILA</option>
+                                <option value="BEMBEREKE">BEMBÈRÈKÈ</option>
+                                <option value="BOHICON">BOHICON</option>
+                                <option value="BONOU">BONOU</option>
+                                <option value="BOUKOUMBE">BOUKOUMBÉ</option>
+                                <option value="COBLY">COBLY</option>
+                                <option value="COPARGO">COPARGO</option>
+                                <option value="COVÈ">COVÈ</option>
+                                <option value="DASSA-ZOUME">DASSA-ZOUMÈ</option>
+                                <option value="DJAKOTOMEY">DJAKOTOMEY</option>
+                                <option value="DJIDJA">DJIDJA</option>
+                                <option value="DJOUGOU">DJOUGOU</option>
+                                <option value="DOGBO">DOGBO</option>
+                                <option value="GLAZOUÉ">GLAZOUÉ</option>
+                                <option value="GOGOUNOU">GOGOUNOU</option>
+                                <option value="KALALE">KALALÉ</option>
+                                <option value="KANDI">KANDI</option>
+                                <option value="KARIMAMA">KARIMAMA</option>
+                                <option value="KLUEKANME">KLOUÉKANMÈ</option>
+                                <option value="KOUANDE">KOUANDÉ</option>
+                                <option value="KEROU">KÉROU</option>
+                                <option value="KETOU">KÉTOU</option>
+                                <option value="LALO">LALO</option>
+                                <option value="LOKOSSA">LOKOSSA</option>
+                                <option value="MALANVILLE">MALANVILLE</option>
+                                <option value="MATERI">MATÉRI</option>
+                                <option value="N'DALI">N'DALI</option>
+                                <option value="NATITINGOU">NATITINGOU</option>
+                                <option value="NIKKI">NIKKI</option>
+                                <option value="OUAKE">OUAKÉ</option>
+                                <option value="OUINHI">OUINHI</option>
+                                <option value="OUESSE">OUÈSSÈ</option>
+                                <option value="PARAKOU">PARAKOU</option>
+                                <option value="PÉHUNCO">PÉHUNCO</option>
+                                <option value="POBE">POBÉ</option>
+                                <option value="PERERE">PÈRÈRÈ</option>
+                                <option value="SAVALOU">SAVALOU</option>
+                                <option value="SAVÈ">SAVÈ</option>
+                                <option value="SINENDE">SINENDÉ</option>
+                                <option value="SEGBANA">SÉGBANA</option>
+                                <option value="TANGUIETA">TANGUIÉTA</option>
+                                <option value="TCHAOUROU">TCHAOUROU</option>
+                                <option value="TOUCOUNTOUNA">TOUCOUNTOUNA</option>
+                                <option value="TOVIKLIN">TOVIKLIN</option>
+                                <option value="ZA-KPOTA">ZA-KPOTA</option>
+                                <option value="ZAGNANADO">ZAGNANADO</option>
+                                <option value="ZOGBODOMEY">ZOGBODOMEY</option>
                         </select>
                     </div>
 
@@ -166,9 +210,24 @@
     <script>
         // Coordonnées pour centrer et marquer la carte au Bénin
         const COORDS = {
-            "BANIKOARA": [11.30, 2.43], "KANDI": [11.13, 2.93], "BEMBEREKE": [10.22, 2.67],
-            "DJOUGOU": [9.70, 1.66], "TCHAOUROU": [8.89, 2.60], "GOGOUNOU": [10.84, 2.84],
-            "BASSILA": [9.01, 1.67], "DASSA-ZOUME": [7.75, 2.18], "SAVALOU": [7.93, 1.98]
+           "ABOMEY": {lat: 7.18, lng: 1.99}, "ADJA-OUERE": {lat: 6.94, lng: 2.64}, "AGBANGNIZOUN": {lat: 7.08, lng: 1.96},
+            "APLAHOUÉ": {lat: 6.93, lng: 1.68}, "BANIKOARA": {lat: 11.30, lng: 2.43}, "BANTÈ": {lat: 8.42, lng: 1.88},
+            "BASSILA": {lat: 9.01, lng: 1.67}, "BEMBEREKE": {lat: 10.22, lng: 2.67}, "BOHICON": {lat: 7.17, lng: 2.07},
+            "BONOU": {lat: 6.89, lng: 2.49}, "BOUKOUMBE": {lat: 10.17, lng: 1.10}, "COBLY": {lat: 10.40, lng: 1.39},
+            "COPARGO": {lat: 9.84, lng: 1.55}, "COVÈ": {lat: 7.22, lng: 2.34}, "DASSA-ZOUME": {lat: 7.75, lng: 2.18},
+            "DJAKOTOMEY": {lat: 6.90, lng: 1.72}, "DJIDJA": {lat: 7.34, lng: 1.93}, "DJOUGOU": {lat: 9.70, lng: 1.66},
+            "DOGBO": {lat: 6.81, lng: 1.78}, "GLAZOUÉ": {lat: 7.97, lng: 2.24}, "GOGOUNOU": {lat: 10.84, lng: 2.84},
+            "KALALE": {lat: 10.30, lng: 3.38}, "KANDI": {lat: 11.13, lng: 2.93}, "KARIMAMA": {lat: 12.06, lng: 3.18},
+            "KLUEKANME": {lat: 6.91, lng: 1.88}, "KOUANDE": {lat: 10.33, lng: 1.69}, "KEROU": {lat: 10.83, lng: 2.00},
+            "KETOU": {lat: 7.36, lng: 2.60}, "LALO": {lat: 6.92, lng: 1.88}, "LOKOSSA": {lat: 6.64, lng: 1.72},
+            "MALANVILLE": {lat: 11.86, lng: 3.38}, "MATERI": {lat: 10.74, lng: 1.11}, "N'DALI": {lat: 9.86, lng: 2.42},
+            "NATITINGOU": {lat: 10.30, lng: 1.37}, "NIKKI": {lat: 9.93, lng: 3.21}, "OUAKE": {lat: 9.66, lng: 1.38},
+            "OUINHI": {lat: 7.00, lng: 2.45}, "OUESSE": {lat: 8.49, lng: 2.43}, "PARAKOU": {lat: 9.34, lng: 2.63},
+            "PÉHUNCO": {lat: 10.23, lng: 2.01}, "POBE": {lat: 6.98, lng: 2.68}, "PERERE": {lat: 9.37, lng: 2.98},
+            "SAVALOU": {lat: 7.93, lng: 1.98}, "SAVÈ": {lat: 8.04, lng: 2.49}, "SINENDE": {lat: 9.27, lng: 2.38},
+            "SEGBANA": {lat: 10.93, lng: 3.69}, "TANGUIETA": {lat: 10.62, lng: 1.26}, "TCHAOUROU": {lat: 8.89, lng: 2.60},
+            "TOUCOUNTOUNA": {lat: 10.51, lng: 1.43}, "TOVIKLIN": {lat: 6.80, lng: 1.62}, "ZA-KPOTA": {lat: 7.24, lng: 2.11},
+            "ZAGNANADO": {lat: 7.27, lng: 2.34}, "ZOGBODOMEY": {lat: 7.08, lng: 2.10}
         };
 
         // Initialisation de la carte
@@ -217,7 +276,7 @@
 
                 // Extraction des données de la réponse JSON de l'API
                 const rend = data.rendement;
-                const pipeline = data.modele_utilise; // spatial ou temporel
+                const pipeline = data.modele_utilise; 
                 const classe = data.categorie;
 
                 // Code couleur selon les résultats renvoyés
