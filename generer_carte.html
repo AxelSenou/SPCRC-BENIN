@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SPCRC-Bénin — Système de Prédiction et Cartographie</title>
+    <title>SPCRC-Bénin — Consommateur d'API & Cartographie</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
@@ -11,7 +11,7 @@
         body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f4f8; height: 100vh; display: flex; flex-direction: column; }
         
         header { 
-            background: linear-gradient(135deg, #1a5c2a, #2e8b57); 
+            background: linear-gradient(135deg, #134e1e, #1a5c2a); 
             color: white; 
             padding: 12px 20px; 
             display: flex; 
@@ -19,59 +19,53 @@
             gap: 14px; 
             box-shadow: 0 2px 8px rgba(0,0,0,.25); 
         }
-        header h1 { font-size: 17px; font-weight: 700; }
+        header h1 { font-size: 16px; font-weight: 700; }
         header p { font-size: 11px; opacity: .85; margin-top: 2px; }
+        .api-badge { margin-left: auto; font-size: 11px; background: #409eff; padding: 4px 8px; border-radius: 4px; font-weight: 600; }
 
         .container { display: flex; flex: 1; overflow: hidden; }
         
         .sidebar { 
-            width: 420px; 
+            width: 410px; 
             background: white; 
             border-right: 1px solid #dcdfe6; 
             display: flex; 
             flex-direction: column; 
             overflow-y: auto; 
             padding: 20px;
-            gap: 20px;
+            gap: 15px;
         }
 
-        .map-container { flex: 1; position: relative; background: #e5e9f2; }
+        .map-container { flex: 1; background: #e5e9f2; }
         #map { width: 100%; height: 100%; }
 
         .card { 
             background: #ffffff; 
             border: 1px solid #e4e7ed; 
             border-radius: 8px; 
-            padding: 16px; 
-            box-shadow: 0 2px 12px 0 rgba(0,0,0,.05);
+            padding: 15px; 
+            box-shadow: 0 2px 12px 0 rgba(0,0,0,.04);
         }
-        .card-title { font-size: 14px; font-weight: 600; color: #303133; margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
-        
-        .tabs { display: flex; border-bottom: 2px solid #f2f6fc; margin-bottom: 14px; }
-        .tab-btn { flex: 1; padding: 10px; background: none; border: none; border-bottom: 2px solid transparent; margin-bottom: -2px; cursor: pointer; font-size: 13px; font-weight: 600; color: #909399; transition: all 0.3s; }
-        .tab-btn.active { color: #2e8b57; border-bottom-color: #2e8b57; }
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
+        .card-title { font-size: 13px; font-weight: 600; color: #303133; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
 
-        .form-group { margin-bottom: 12px; }
-        .form-group label { display: block; font-size: 12px; color: #606266; margin-bottom: 4px; font-weight: 500; }
-        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .form-group { margin-bottom: 10px; }
+        .form-group label { display: block; font-size: 11px; color: #606266; margin-bottom: 3px; font-weight: 500; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
         
         input, select { 
             width: 100%; 
-            padding: 8px 12px; 
+            padding: 7px 10px; 
             border: 1px solid #dcdfe6; 
             border-radius: 4px; 
-            font-size: 13px; 
+            font-size: 12px; 
             color: #606266; 
-            transition: border-color .2s; 
         }
-        input:focus, select:focus { border-color: #2e8b57; outline: none; }
+        input:focus, select:focus { border-color: #1a5c2a; outline: none; }
 
         .btn { 
             width: 100%; 
             padding: 10px; 
-            background: #2e8b57; 
+            background: #1a5c2a; 
             color: white; 
             border: none; 
             border-radius: 4px; 
@@ -79,171 +73,87 @@
             font-size: 13px; 
             cursor: pointer; 
             transition: background .2s; 
+            margin-top: 5px;
         }
-        .btn:hover { background: #1a5c2a; }
+        .btn:hover { background: #134e1e; }
 
-        /* Bloc Résultats */
-        .result-box { display: none; margin-top: 15px; background: #f4f9f4; border: 1px solid #c2e7c2; border-radius: 6px; padding: 14px; }
+        .result-box { display: none; margin-top: 10px; background: #f4f9f4; border: 1px solid #c2e7c2; border-radius: 6px; padding: 12px; }
         .result-box.show { display: block; }
-        .res-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
-        .res-commune { font-size: 16px; font-weight: 700; color: #1a5c2a; }
-        .res-value { font-size: 24px; font-weight: 800; }
-        .badge { display: inline-block; padding: 3px 8px; border-radius: 12px; font-size: 11px; font-weight: 600; text-transform: uppercase; margin-bottom: 8px; }
+        .res-header { display: flex; justify-content: space-between; align-items: baseline; }
+        .res-commune { font-size: 15px; font-weight: 700; color: #1a5c2a; }
+        .res-value { font-size: 22px; font-weight: 800; }
+        .badge { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 600; margin-top: 4px; margin-bottom: 6px; text-transform: uppercase; }
         .res-modele { font-size: 11px; color: #909399; font-style: italic; }
-        .res-interpretation { font-size: 12px; color: #48576a; line-height: 1.4; margin-top: 8px; padding-top: 8px; border-top: 1px dashed #c2e7c2; }
-        .res-avertissement { background: #fdf6ec; border: 1px solid #f5dab1; color: #e6a23c; padding: 8px; border-radius: 4px; font-size: 11px; margin-top: 8px; display: none; }
-
-        /* Historique */
-        .history-list { display: flex; flex-direction: column; gap: 8px; max-height: 220px; overflow-y: auto; }
-        .history-item { padding: 8px 12px; border: 1px solid #e4e7ed; background: #fafafa; border-radius: 4px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: all .2s; }
-        .history-item:hover { background: #f0f4f8; border-color: #b3d8ff; }
-        .history-info { display: flex; flex-direction: column; gap: 2px; }
-        .history-name { font-size: 12px; font-weight: 600; color: #303133; }
-        .history-meta { font-size: 10px; color: #909399; }
-        .history-val { font-size: 13px; font-weight: 700; text-align: right; }
-
-        /* Styles Batch CSV */
-        #csvSummary { font-size: 12px; margin-top: 8px; color: #606266; }
     </style>
 </head>
 <body>
 
     <header>
-        <div style="background: white; border-radius: 4px; padding: 4px; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center;">
-            🌱
-        </div>
+        <div style="font-size: 20px;">🌍</div>
         <div>
-            <h1>SPCRC-Bénin</h1>
-            <p>Système de Prédiction et de Cartographie des Rendements Cotonniers (SPCRC-Bénin)</p>
+            <h1>SPCRC-Bénin — Visualisation Cartographique</h1>
+            <p>Interface connectée à l'API de Prédiction des Rendements Cotonniers</p>
         </div>
+        <div class="api-badge">Mode : API REST Active</div>
     </header>
 
     <div class="container">
         <div class="sidebar">
             
             <div class="card">
-                <div class="tabs">
-                    <button class="tab-btn active" id="btn-unitaire" onclick="switchTab('unitaire')"> Prédiction Unitaire</button>
-                    <button class="tab-btn" id="btn-batch" onclick="switchTab('batch')"> Import CSV Batch</button>
-                </div>
-
-                <div id="tab-unitaire" class="tab-content active">
-                    <form id="predictionForm" onsubmit="executePrediction(event)">
-                        <div class="form-group">
-                            <label for="communeSelect">Commune cible</label>
-                            <select id="communeSelect" required>
-                                <option value="">-- Sélectionner une commune (53 disponibles) --</option>
-                                <option value="ABOMEY">ABOMEY</option>
-                                <option value="ADJA-OUERE">ADJA-OUÈRÈ</option>
-                                <option value="AGBANGNIZOUN">AGBANGNIZOUN</option>
-                                <option value="APLAHOUÉ">APLAHOUÉ</option>
-                                <option value="BANIKOARA">BANIKOARA</option>
-                                <option value="BANTÈ">BANTÈ</option>
-                                <option value="BASSILA">BASSILA</option>
-                                <option value="BEMBEREKE">BEMBÈRÈKÈ</option>
-                                <option value="BOHICON">BOHICON</option>
-                                <option value="BONOU">BONOU</option>
-                                <option value="BOUKOUMBE">BOUKOUMBÉ</option>
-                                <option value="COBLY">COBLY</option>
-                                <option value="COPARGO">COPARGO</option>
-                                <option value="COVÈ">COVÈ</option>
-                                <option value="DASSA-ZOUME">DASSA-ZOUMÈ</option>
-                                <option value="DJAKOTOMEY">DJAKOTOMEY</option>
-                                <option value="DJIDJA">DJIDJA</option>
-                                <option value="DJOUGOU">DJOUGOU</option>
-                                <option value="DOGBO">DOGBO</option>
-                                <option value="GLAZOUÉ">GLAZOUÉ</option>
-                                <option value="GOGOUNOU">GOGOUNOU</option>
-                                <option value="KALALE">KALALÉ</option>
-                                <option value="KANDI">KANDI</option>
-                                <option value="KARIMAMA">KARIMAMA</option>
-                                <option value="KLUEKANME">KLOUÉKANMÈ</option>
-                                <option value="KOUANDE">KOUANDÉ</option>
-                                <option value="KEROU">KÉROU</option>
-                                <option value="KETOU">KÉTOU</option>
-                                <option value="LALO">LALO</option>
-                                <option value="LOKOSSA">LOKOSSA</option>
-                                <option value="MALANVILLE">MALANVILLE</option>
-                                <option value="MATERI">MATÉRI</option>
-                                <option value="N'DALI">N'DALI</option>
-                                <option value="NATITINGOU">NATITINGOU</option>
-                                <option value="NIKKI">NIKKI</option>
-                                <option value="OUAKE">OUAKÉ</option>
-                                <option value="OUINHI">OUINHI</option>
-                                <option value="OUESSE">OUÈSSÈ</option>
-                                <option value="PARAKOU">PARAKOU</option>
-                                <option value="PÉHUNCO">PÉHUNCO</option>
-                                <option value="POBE">POBÉ</option>
-                                <option value="PERERE">PÈRÈRÈ</option>
-                                <option value="SAVALOU">SAVALOU</option>
-                                <option value="SAVÈ">SAVÈ</option>
-                                <option value="SINENDE">SINENDÉ</option>
-                                <option value="SEGBANA">SÉGBANA</option>
-                                <option value="TANGUIETA">TANGUIÉTA</option>
-                                <option value="TCHAOUROU">TCHAOUROU</option>
-                                <option value="TOUCOUNTOUNA">TOUCOUNTOUNA</option>
-                                <option value="TOVIKLIN">TOVIKLIN</option>
-                                <option value="ZA-KPOTA">ZA-KPOTA</option>
-                                <option value="ZAGNANADO">ZAGNANADO</option>
-                                <option value="ZOGBODOMEY">ZOGBODOMEY</option>
-                            </select>
-                        </div>
-
-                        <div class="card-title" style="font-size:12px; margin-top:10px; margin-bottom:6px; color:#909399;">🌧️ Variables Pluviométriques (mm)</div>
-                        <div class="form-row">
-                            <div class="form-group"><label>Pluie Semis</label><input type="number" step="0.1" min="0" id="Pluie_Semis_mm" value="350.0" required></div>
-                            <div class="form-group"><label>Max Jours Secs</label><input type="number" min="0" id="Max_Jours_Secs_Semis" value="2" required></div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group"><label>Pluie Floraison</label><input type="number" step="0.1" min="0" id="Pluie_Floraison_mm" value="570.0" required></div>
-                            <div class="form-group"><label>Max Jours Secs</label><input type="number" min="0" id="Max_Jours_Secs_Floraison" value="1" required></div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group"><label>Pluie Maturation</label><input type="number" step="0.1" min="0" id="Pluie_Maturation_mm" value="160.0" required></div>
-                            <div class="form-group"><label>Max Jours Secs</label><input type="number" min="0" id="Max_Jours_Secs_Maturation" value="10" required></div>
-                        </div>
-
-                        <div class="card-title" style="font-size:12px; margin-top:5px; margin-bottom:6px; color:#909399;">🧪 Paramètres de Sol & Environnement</div>
-                        <div class="form-row">
-                            <div class="form-group"><label>pH du Sol</label><input type="number" step="0.1" min="0" max="14" id="pH_Sol" value="6.2" required></div>
-                            <div class="form-group"><label>Argile (%)</label><input type="number" step="0.1" min="0" max="100" id="Argile_Perc" value="22.0" required></div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group"><label>Azote (g/kg)</label><input type="number" step="0.01" min="0" id="Azote_g_kg" value="1.20" required></div>
-                            <div class="form-group"><label>Rad. Solaire (MJ)</label><input type="number" step="0.1" min="0" id="Radiation_Solaire_MJ" value="17.5" required></div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group"><label>Tº Max Moy (°C)</label><input type="number" step="0.1" id="Temp_Max_Moy_C" value="33.2" required></div>
-                            <div class="form-group"><label>Humidité (%)</label><input type="number" step="0.1" min="0" max="100" id="Humidite_Relative_Perc" value="82.0" required></div>
-                        </div>
-                        <button type="submit" class="btn" style="margin-top: 8px;">Calculer la prédiction</button>
-                    </form>
-
-                    <div id="resultBox" class="result-box">
-                        <div class="res-header">
-                            <span id="resCommune" class="res-commune">COMMUNE</span>
-                            <span id="resValue" class="res-value">0.00</span>
-                        </div>
-                        <div id="resBadge" class="badge">NORMAL</div>
-                        <div id="resModele" class="res-modele">Modèle : —</div>
-                        <div id="resAvertissement" class="res-avertissement"></div>
-                        <div id="resInterp" class="res-interpretation"></div>
-                    </div>
-                </div>
-
-                <div id="tab-batch" class="tab-content">
+                <div class="card-title">📍 Paramètres de Simulation</div>
+                <form id="apiForm" onsubmit="appelerAPI(event)">
                     <div class="form-group">
-                        <label>Sélectionner un fichier CSV</label>
-                        <input type="file" id="csvFileInput" accept=".csv" onchange="handleCSVImport(event)">
+                        <label for="commune">Commune cible</label>
+                        <select id="commune" required>
+                            <option value="BANIKOARA">BANIKOARA</option>
+                            <option value="KANDI">KANDI</option>
+                            <option value="BEMBEREKE">BEMBÈRÈKÈ</option>
+                            <option value="DJOUGOU">DJOUGOU</option>
+                            <option value="TCHAOUROU">TCHAOUROU</option>
+                            <option value="GOGOUNOU">GOGOUNOU</option>
+                            <option value="BASSILA">BASSILA</option>
+                            <option value="DASSA-ZOUME">DASSA-ZOUMÈ</option>
+                            <option value="SAVALOU">SAVALOU</option>
+                        </select>
                     </div>
-                    <div id="csvSummary"></div>
-                </div>
-            </div>
 
-            <div class="card">
-                <div class="card-title"> Dernières Simulations</div>
-                <div id="historyList" class="history-list">
+                    <div class="form-row">
+                        <div class="form-group"><label>Pluie Semis (mm)</label><input type="number" step="0.1" id="Pluie_Semis_mm" value="350.0" required></div>
+                        <div class="form-group"><label>Jours Secs Semis</label><input type="number" id="Max_Jours_Secs_Semis" value="2" required></div>
                     </div>
+                    <div class="form-row">
+                        <div class="form-group"><label>Pluie Floraison (mm)</label><input type="number" step="0.1" id="Pluie_Floraison_mm" value="570.0" required></div>
+                        <div class="form-group"><label>Jours Secs Floraison</label><input type="number" id="Max_Jours_Secs_Floraison" value="1" required></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group"><label>Pluie Maturation (mm)</label><input type="number" step="0.1" id="Pluie_Maturation_mm" value="160.0" required></div>
+                        <div class="form-group"><label>Jours Secs Maturation</label><input type="number" id="Max_Jours_Secs_Maturation" value="10" required></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group"><label>pH du Sol</label><input type="number" step="0.1" id="pH_Sol" value="6.2" required></div>
+                        <div class="form-group"><label>Argile (%)</label><input type="number" step="0.1" id="Argile_Perc" value="22.0" required></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group"><label>Azote (g/kg)</label><input type="number" step="0.1" id="Azote_g_kg" value="1.2" required></div>
+                        <div class="form-group"><label>Rad. Solaire (MJ)</label><input type="number" step="0.1" id="Radiation_Solaire_MJ" value="17.5" required></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group"><label>T° Max Moy (°C)</label><input type="number" step="0.1" id="Temp_Max_Moy_C" value="33.2" required></div>
+                        <div class="form-group"><label>Humidité (%)</label><input type="number" step="0.1" id="Humidite_Relative_Perc" value="82.0" required></div>
+                    </div>
+
+                    <button type="submit" class="btn">Interroger l'API & Cartographier</button>
+                </form>
+
+                <div id="resultBox" class="result-box">
+                    <div class="res-header">
+                        <span id="resCommune" class="res-commune">-</span>
+                        <span id="resValue" class="res-value">0 kg/ha</span>
+                    </div>
+                    <div id="resBadge" class="badge">NORMAL</div>
+                    <div id="resModele" class="res-modele">Pipeline : -</div>
+                </div>
             </div>
 
         </div>
@@ -254,67 +164,26 @@
     </div>
 
     <script>
-        // Coordonnées approximatives des communes principales du Bénin
-        const COORDS_COMMUNES = {
-            "ABOMEY": {lat: 7.18, lng: 1.99}, "ADJA-OUERE": {lat: 6.94, lng: 2.64}, "AGBANGNIZOUN": {lat: 7.08, lng: 1.96},
-            "APLAHOUÉ": {lat: 6.93, lng: 1.68}, "BANIKOARA": {lat: 11.30, lng: 2.43}, "BANTÈ": {lat: 8.42, lng: 1.88},
-            "BASSILA": {lat: 9.01, lng: 1.67}, "BEMBEREKE": {lat: 10.22, lng: 2.67}, "BOHICON": {lat: 7.17, lng: 2.07},
-            "BONOU": {lat: 6.89, lng: 2.49}, "BOUKOUMBE": {lat: 10.17, lng: 1.10}, "COBLY": {lat: 10.40, lng: 1.39},
-            "COPARGO": {lat: 9.84, lng: 1.55}, "COVÈ": {lat: 7.22, lng: 2.34}, "DASSA-ZOUME": {lat: 7.75, lng: 2.18},
-            "DJAKOTOMEY": {lat: 6.90, lng: 1.72}, "DJIDJA": {lat: 7.34, lng: 1.93}, "DJOUGOU": {lat: 9.70, lng: 1.66},
-            "DOGBO": {lat: 6.81, lng: 1.78}, "GLAZOUÉ": {lat: 7.97, lng: 2.24}, "GOGOUNOU": {lat: 10.84, lng: 2.84},
-            "KALALE": {lat: 10.30, lng: 3.38}, "KANDI": {lat: 11.13, lng: 2.93}, "KARIMAMA": {lat: 12.06, lng: 3.18},
-            "KLUEKANME": {lat: 6.91, lng: 1.88}, "KOUANDE": {lat: 10.33, lng: 1.69}, "KEROU": {lat: 10.83, lng: 2.00},
-            "KETOU": {lat: 7.36, lng: 2.60}, "LALO": {lat: 6.92, lng: 1.88}, "LOKOSSA": {lat: 6.64, lng: 1.72},
-            "MALANVILLE": {lat: 11.86, lng: 3.38}, "MATERI": {lat: 10.74, lng: 1.11}, "N'DALI": {lat: 9.86, lng: 2.42},
-            "NATITINGOU": {lat: 10.30, lng: 1.37}, "NIKKI": {lat: 9.93, lng: 3.21}, "OUAKE": {lat: 9.66, lng: 1.38},
-            "OUINHI": {lat: 7.00, lng: 2.45}, "OUESSE": {lat: 8.49, lng: 2.43}, "PARAKOU": {lat: 9.34, lng: 2.63},
-            "PÉHUNCO": {lat: 10.23, lng: 2.01}, "POBE": {lat: 6.98, lng: 2.68}, "PERERE": {lat: 9.37, lng: 2.98},
-            "SAVALOU": {lat: 7.93, lng: 1.98}, "SAVÈ": {lat: 8.04, lng: 2.49}, "SINENDE": {lat: 9.27, lng: 2.38},
-            "SEGBANA": {lat: 10.93, lng: 3.69}, "TANGUIETA": {lat: 10.62, lng: 1.26}, "TCHAOUROU": {lat: 8.89, lng: 2.60},
-            "TOUCOUNTOUNA": {lat: 10.51, lng: 1.43}, "TOVIKLIN": {lat: 6.80, lng: 1.62}, "ZA-KPOTA": {lat: 7.24, lng: 2.11},
-            "ZAGNANADO": {lat: 7.27, lng: 2.34}, "ZOGBODOMEY": {lat: 7.08, lng: 2.10}
+        // Coordonnées pour centrer et marquer la carte au Bénin
+        const COORDS = {
+            "BANIKOARA": [11.30, 2.43], "KANDI": [11.13, 2.93], "BEMBEREKE": [10.22, 2.67],
+            "DJOUGOU": [9.70, 1.66], "TCHAOUROU": [8.89, 2.60], "GOGOUNOU": [10.84, 2.84],
+            "BASSILA": [9.01, 1.67], "DASSA-ZOUME": [7.75, 2.18], "SAVALOU": [7.93, 1.98]
         };
 
-        // Initialisation de la carte Leaflet sur le Bénin
+        // Initialisation de la carte
         const map = L.map('map').setView([9.30, 2.30], 7);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© OpenStreetMap contributors'
         }).addTo(map);
 
-        let activeMarker = null;
-        let batchLayer = L.featureGroup().addTo(map);
-        let simulationHistory = [];
+        let marqueurActuel = null;
 
-        function switchTab(tabId) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-            document.getElementById(`tab-${tabId}`).classList.add('active');
-            document.getElementById(`btn-${tabId}`).classList.add('active');
-        }
-
-        function getColorAndLabel(rendement) {
-            if (rendement < 700) return { color: '#ef5350', text: 'Rendement Faible' };
-            if (rendement < 1100) return { color: '#ffb74d', text: 'Rendement Moyen' };
-            return { color: '#66bb6a', text: 'Rendement Excellent' };
-        }
-
-        function genInterpretation(rendement, bh) {
-            let html = `Le rendement estimé est de <b>${rendement.toFixed(0)} kg/ha</b>. `;
-            if (rendement < 700) {
-                html += "Des contraintes majeures sur les composantes agro-climatiques impactent négativement le potentiel de la culture cotonnière.";
-            } else if (rendement < 1100) {
-                html += "Les conditions de sol et de climat sont modérément favorables. Rendement stable.";
-            } else {
-                html += "Excellentes conditions pédoclimatiques combinées. Potentiel de production cotonnier optimal.";
-            }
-            return html;
-        }
-
-        async function executePrediction(e) {
+        async function appelerAPI(e) {
             e.preventDefault();
-            const commune = document.getElementById('communeSelect').value;
-            
+            const commune = document.getElementById('commune').value;
+
+            // Construction du corps JSON attendu par l'API
             const payload = {
                 "Commune": commune,
                 "Pluie_Semis_mm": parseFloat(document.getElementById('Pluie_Semis_mm').value),
@@ -332,178 +201,64 @@
             };
 
             try {
+                // Envoi de la requête à l'API Flask
                 const response = await fetch('http://127.0.0.1:5000/predict', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
+                
                 const data = await response.json();
 
                 if (!data.success) {
-                    alert("Erreur de prédiction : " + data.error);
+                    alert("Erreur retournée par l'API : " + data.error);
                     return;
                 }
 
+                // Extraction des données de la réponse JSON de l'API
                 const rend = data.rendement;
-                const configVisual = getColorAndLabel(rend);
-                
-                // Remplissage interface
+                const pipeline = data.modele_utilise; // spatial ou temporel
+                const classe = data.categorie;
+
+                // Code couleur selon les résultats renvoyés
+                let couleur = '#66bb6a'; // Excellent
+                if (rend < 700) couleur = '#ef5350'; // Faible
+                else if (rend < 1100) couleur = '#ffb74d'; // Moyen
+
+                // Mise à jour de l'interface graphique
                 document.getElementById('resCommune').textContent = commune;
                 document.getElementById('resValue').textContent = `${rend.toFixed(0)} kg/ha`;
-                document.getElementById('resValue').style.color = configVisual.color;
+                document.getElementById('resValue').style.color = couleur;
                 
                 const badge = document.getElementById('resBadge');
-                badge.textContent = configVisual.text;
-                badge.style.backgroundColor = configVisual.color;
+                badge.textContent = classe;
+                badge.style.backgroundColor = couleur;
                 badge.style.color = '#fff';
                 
-                // Affichage dynamique du sous-modèle utilisé (XGBoost ou Random Forest) sur les axes Spatial/Temporel
-                const strModele = data.modele_utilise === 'spatial' ? 'Spatial' : 'Temporel';
-                document.getElementById('resModele').textContent = `Modèle mobilisé : ${strModele}`;
-                
-                document.getElementById('resInterp').innerHTML = genInterpretation(rend, 0);
-
-                const avertEl = document.getElementById('resAvertissement');
-                if (data.avertissement) {
-                    avertEl.textContent = data.avertissement;
-                    avertEl.style.display = 'block';
-                } else {
-                    avertEl.style.display = 'none';
-                }
-
+                document.getElementById('resModele').textContent = `Pipeline API mobilisé : ${pipeline.toUpperCase()}`;
                 document.getElementById('resultBox').classList.add('show');
 
-                // Cartographie
-                const coords = COORDS_COMMUNES[commune];
-                if (coords) {
-                    batchLayer.clearLayers();
-                    if (activeMarker) map.removeLayer(activeMarker);
-                    
-                    activeMarker = L.circleMarker([coords.lat, coords.lng], {
-                        radius: 12,
-                        fillColor: configVisual.color,
-                        color: "#fff",
-                        weight: 2,
-                        fillOpacity: 0.85
-                    }).addTo(map);
-                    
-                    activeMarker.bindPopup(`<b>${commune}</b><br>Rendement : ${rend.toFixed(0)} kg/ha<br>${configVisual.text}`).openPopup();
-                    map.setView([coords.lat, coords.lng], 9);
-                }
+                // Projection sur la carte
+                const pos = COORDS[commune];
+                if (pos) {
+                    if (marqueurActuel) map.removeLayer(marqueurActuel);
 
-                // Ajout à l'historique local
-                addToHistory({
-                    commune: commune,
-                    rendement: rend,
-                    colorHex: configVisual.color,
-                    textCat: configVisual.text,
-                    modele: data.modele_utilise,
-                    time: new Date().toLocaleTimeString('fr-FR', {hour: '2-digit', minute:'2-digit'})
-                });
+                    marqueurActuel = L.circleMarker(pos, {
+                        radius: 13,
+                        fillColor: couleur,
+                        color: '#fff',
+                        weight: 2,
+                        fillOpacity: 0.9
+                    }).addTo(map);
+
+                    marqueurActuel.bindPopup(`<b>${commune}</b><br>Rendement : ${rend.toFixed(0)} kg/ha<br>Source : API JSON (${pipeline})`).openPopup();
+                    map.setView(pos, 9);
+                }
 
             } catch (err) {
                 console.error(err);
-                alert("Impossible de joindre le serveur Flask (SPCRC-Bénin). Vérifiez qu'il est bien démarré sur le port 5000.");
+                alert("Erreur de connexion : Assurez-vous que votre API Flask tourne sur http://127.0.0.1:5000");
             }
-        }
-
-        function addToHistory(entry) {
-            simulationHistory.unshift(entry);
-            if (simulationHistory.length > 5) simulationHistory.pop();
-            renderHistory();
-        }
-
-        function renderHistory() {
-            const container = document.getElementById('historyList');
-            container.innerHTML = '';
-            simulationHistory.forEach(item => {
-                const el = document.createElement('div');
-                el.className = 'history-item';
-                el.onclick = () => {
-                    document.getElementById('communeSelect').value = item.commune;
-                    // Simule le re-clic pour restaurer l'affichage si besoin
-                };
-                el.innerHTML = `
-                    <div class="history-info">
-                        <span class="history-name">${item.commune}</span>
-                        <span class="history-meta">${item.time} — M. ${item.modele}</span>
-                    </div>
-                    <div class="history-val" style="color: ${item.colorHex}">${item.rendement.toFixed(0)} <span style="font-size:9px;">kg/ha</span></div>
-                `;
-                container.appendChild(el);
-            });
-        }
-
-        async function handleCSVImport(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = async function(evt) {
-                const text = evt.target.result;
-                const lines = text.split('\n');
-                if (lines.length < 2) return;
-
-                const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
-                let okCount = 0;
-                let failCount = 0;
-
-                batchLayer.clearLayers();
-                if (activeMarker) map.removeLayer(activeMarker);
-
-                for (let i = 1; i < lines.length; i++) {
-                    if (!lines[i].trim()) continue;
-                    const values = lines[i].split(',').map(v => v.trim().replace(/"/g, ''));
-                    
-                    let rowData = {};
-                    headers.forEach((h, idx) => { rowData[h] = values[idx]; });
-
-                    const colCommune = headers.find(h => h.toLowerCase() === 'commune');
-                    if (!colCommune || !rowData[colCommune]) {
-                        failCount++;
-                        continue;
-                    }
-
-                    const currentCommune = rowData[colCommune].toUpperCase().strip ? rowData[colCommune].toUpperCase().strip() : rowData[colCommune].toUpperCase();
-
-                    try {
-                        const response = await fetch('http://127.0.0.1:5000/predict', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify(rowData)
-                        });
-                        const data = await response.json();
-
-                        if (data.success) {
-                            okCount++;
-                            const rend = data.rendement;
-                            const configVisual = getColorAndLabel(rend);
-                            const coords = COORDS_COMMUNES[currentCommune];
-
-                            if (coords) {
-                                L.circleMarker([coords.lat, coords.lng], {
-                                    radius: 10,
-                                    fillColor: configVisual.color,
-                                    color: '#fff',
-                                    weight: 1.5,
-                                    fillOpacity: 0.8
-                                }).addTo(batchLayer)
-                                  .bindPopup(`<b>${currentCommune}</b><br>Rendement : ${rend.toFixed(0)} kg/ha<br>Modèle : ${data.modele_utilise}`);
-                            }
-                        } else {
-                            failCount++;
-                        }
-                    } catch (err) {
-                        failCount++;
-                    }
-                }
-
-                document.getElementById('csvSummary').innerHTML = ` <b>${okCount}</b> commune(s) projetée(s) avec succès.<br> <b>${failCount}</b> ligne(s) ignorée(s) ou rejetée(s).`;
-                if (batchLayer.getLayers().length > 0) {
-                    map.fitBounds(batchLayer.getBounds(), { padding: [40, 40] });
-                }
-            };
-            reader.readAsText(file);
         }
     </script>
 </body>
