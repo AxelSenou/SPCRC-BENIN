@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import joblib
 import pandas as pd
 from config import config
@@ -33,12 +32,43 @@ class PredictionService:
     def predict(self, data_dict, commune_nom):
         commune = str(commune_nom).upper().strip()
 
+        normalized = {}
+        for key, value in (data_dict or {}).items():
+            if value is None:
+                continue
+            normalized[str(key)] = value
+
         # Création d'un DataFrame à une ligne à partir du dictionnaire web
-        df_row = pd.DataFrame([data_dict])
+        df_row = pd.DataFrame([normalized])
         if 'Commune' not in df_row.columns:
             df_row['Commune'] = commune
         if 'Annee' not in df_row.columns:
             df_row['Annee'] = 2026
+
+        # Valeurs par défaut si certaines variables essentielles sont absentes
+        defaults = {
+            'Pluie_Semis_mm': 250.0,
+            'Pluie_Floraison_mm': 320.0,
+            'Pluie_Maturation_mm': 280.0,
+            'Pluie_Totale_mm': 850.0,
+            'Temp_Max_Moy_C': 33.0,
+            'Temp_Min_Moy_C': 24.0,
+            'Humidite_Relative_Perc': 70.0,
+            'Radiation_Solaire_MJ': 18.0,
+            'ETP_mm': 110.0,
+            'Bilan_Hydrique_mm': 40.0,
+            'Max_Jours_Secs_Semis': 6.0,
+            'Max_Jours_Secs_Floraison': 4.0,
+            'Max_Jours_Secs_Maturation': 5.0,
+            'pH_Sol': 6.2,
+            'Argile_Perc': 18.0,
+            'Azote_g_kg': 1.2,
+        }
+        for key, value in defaults.items():
+            if key not in df_row.columns:
+                df_row[key] = value
+            elif pd.isna(df_row.loc[0, key]):
+                df_row.loc[0, key] = value
 
         try:
             # Modèle Temporel + PCA Temporel

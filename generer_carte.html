@@ -1,323 +1,334 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SPCRC-Bénin — API & Cartographie</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f4f8; height: 100vh; display: flex; flex-direction: column; }
-        
-        header { 
-            background: linear-gradient(135deg, #134e1e, #1a5c2a); 
-            color: white; 
-            padding: 12px 20px; 
-            display: flex; 
-            align-items: center; 
-            gap: 14px; 
-            box-shadow: 0 2px 8px rgba(0,0,0,.25); 
-        }
-        header h1 { font-size: 16px; font-weight: 700; }
-        header p { font-size: 11px; opacity: .85; margin-top: 2px; }
-        .api-badge { margin-left: auto; font-size: 11px; background: #409eff; padding: 4px 8px; border-radius: 4px; font-weight: 600; }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SPCRC-Bénin | Prédiction du rendement</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    :root {
+      --bg: #f4f8f4;
+      --card: #ffffff;
+      --accent: #2e7d32;
+      --accent-2: #66bb6a;
+      --text: #1b2a1b;
+      --muted: #5f6f5f;
+      --danger: #c62828;
+      --shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+    }
 
-        .container { display: flex; flex: 1; overflow: hidden; }
-        
-        .sidebar { 
-            width: 410px; 
-            background: white; 
-            border-right: 1px solid #dcdfe6; 
-            display: flex; 
-            flex-direction: column; 
-            overflow-y: auto; 
-            padding: 20px;
-            gap: 15px;
-        }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Roboto, Arial, sans-serif;
+      background: linear-gradient(135deg, #f7fdf7, #eaf7ea);
+      color: var(--text);
+    }
 
-        .map-container { flex: 1; background: #e5e9f2; }
-        #map { width: 100%; height: 100%; }
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 24px;
+    }
 
-        .card { 
-            background: #ffffff; 
-            border: 1px solid #e4e7ed; 
-            border-radius: 8px; 
-            padding: 15px; 
-            box-shadow: 0 2px 12px 0 rgba(0,0,0,.04);
-        }
-        .card-title { font-size: 13px; font-weight: 600; color: #303133; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+    .hero {
+      background: linear-gradient(120deg, var(--accent), var(--accent-2));
+      color: white;
+      border-radius: 24px;
+      padding: 28px;
+      box-shadow: var(--shadow);
+      margin-bottom: 24px;
+    }
 
-        .form-group { margin-bottom: 10px; }
-        .form-group label { display: block; font-size: 11px; color: #606266; margin-bottom: 3px; font-weight: 500; }
-        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-        
-        input, select { 
-            width: 100%; 
-            padding: 7px 10px; 
-            border: 1px solid #dcdfe6; 
-            border-radius: 4px; 
-            font-size: 12px; 
-            color: #606266; 
-        }
-        input:focus, select:focus { border-color: #1a5c2a; outline: none; }
+    .hero h1 { margin: 0 0 8px; font-size: 1.9rem; }
+    .hero p { margin: 0; opacity: 0.95; }
 
-        .btn { 
-            width: 100%; 
-            padding: 10px; 
-            background: #1a5c2a; 
-            color: white; 
-            border: none; 
-            border-radius: 4px; 
-            font-weight: 600; 
-            font-size: 13px; 
-            cursor: pointer; 
-            transition: background .2s; 
-            margin-top: 5px;
-        }
-        .btn:hover { background: #134e1e; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 14px;
+    }
 
-        .result-box { display: none; margin-top: 10px; background: #f4f9f4; border: 1px solid #c2e7c2; border-radius: 6px; padding: 12px; }
-        .result-box.show { display: block; }
-        .res-header { display: flex; justify-content: space-between; align-items: baseline; }
-        .res-commune { font-size: 15px; font-weight: 700; color: #1a5c2a; }
-        .res-value { font-size: 22px; font-weight: 800; }
-        .badge { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 600; margin-top: 4px; margin-bottom: 6px; text-transform: uppercase; }
-        .res-modele { font-size: 11px; color: #909399; font-style: italic; }
-    </style>
+    .card {
+      background: var(--card);
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: var(--shadow);
+    }
+
+    form label {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 0.95rem;
+      color: var(--muted);
+    }
+
+    input, select {
+      border: 1px solid #c6dcc6;
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 0.95rem;
+      outline: none;
+    }
+
+    input:focus, select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.12);
+    }
+
+    button {
+      margin-top: 16px;
+      border: none;
+      border-radius: 999px;
+      padding: 12px 18px;
+      font-weight: 600;
+      cursor: pointer;
+      background: var(--accent);
+      color: white;
+    }
+
+    button:hover { filter: brightness(1.05); }
+
+    .result {
+      margin-top: 16px;
+      padding: 16px;
+      border-radius: 16px;
+      background: #f5fff6;
+      border: 1px solid #cfe8d2;
+    }
+
+    .result.success { border-color: #70b97b; }
+    .result.error { border-color: #eea3a3; background: #fff7f8; }
+
+    .result h3 { margin-top: 0; margin-bottom: 8px; }
+
+    .stat {
+      display: flex;
+      justify-content: space-between;
+      padding: 6px 0;
+      border-bottom: 1px solid #eef2ee;
+    }
+
+    .stat:last-child { border-bottom: none; }
+
+    ul { padding-left: 18px; }
+    li { margin-bottom: 8px; }
+
+    .muted { color: var(--muted); }
+    .hidden { display: none; }
+    #map {
+      height: 420px;
+      width: 100%;
+      margin-top: 18px;
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,0.04);
+    }
+  </style>
 </head>
 <body>
+  <div class="container">
+    <section class="hero">
+      <h1>SPCRC-Bénin</h1>
+      <p>Interface web pour visualiser les résultats de l’API de prédiction du rendement cotonnier.</p>
+    </section>
 
-    <header>
-        <div style="font-size: 20px;"></div>
-        <div>
-            <h1>SPCRC-Bénin — Visualisation Cartographique</h1>
-            <p>Interface connectée à l'API de Prédiction des Rendements Cotonniers</p>
+    <section class="card">
+      <h2>Prédire un rendement</h2>
+      <form id="predictionForm">
+        <div class="grid">
+          <label>Commune
+            <input name="Commune" placeholder="PARAKOU" required />
+          </label>
+          <label>Année
+            <input name="Annee" type="number" value="2026" />
+          </label>
+          <label>Pluie saison semis (mm)
+            <input name="Pluie_Semis_mm" type="number" value="250" />
+          </label>
+          <label>Pluie floraison (mm)
+            <input name="Pluie_Floraison_mm" type="number" value="320" />
+          </label>
+          <label>Pluie maturation (mm)
+            <input name="Pluie_Maturation_mm" type="number" value="280" />
+          </label>
+          <label>Pluie totale (mm)
+            <input name="Pluie_Totale_mm" type="number" value="850" />
+          </label>
+          <label>Temp. max moyenne (°C)
+            <input name="Temp_Max_Moy_C" type="number" value="33" />
+          </label>
+          <label>Temp. min moyenne (°C)
+            <input name="Temp_Min_Moy_C" type="number" value="24" />
+          </label>
+          <label>Humidité relative (%)
+            <input name="Humidite_Relative_Perc" type="number" value="70" />
+          </label>
+          <label>Radiation solaire (MJ)
+            <input name="Radiation_Solaire_MJ" type="number" value="18" />
+          </label>
+          <label>ETP (mm)
+            <input name="ETP_mm" type="number" value="110" />
+          </label>
+          <label>Bilan hydrique (mm)
+            <input name="Bilan_Hydrique_mm" type="number" value="40" />
+          </label>
+          <label>Jours secs semis
+            <input name="Max_Jours_Secs_Semis" type="number" value="6" />
+          </label>
+          <label>Jours secs floraison
+            <input name="Max_Jours_Secs_Floraison" type="number" value="4" />
+          </label>
+          <label>Jours secs maturation
+            <input name="Max_Jours_Secs_Maturation" type="number" value="5" />
+          </label>
+          <label>pH du sol
+            <input name="pH_Sol" type="number" value="6.2" step="0.1" />
+          </label>
+          <label>Argile (%)
+            <input name="Argile_Perc" type="number" value="18" />
+          </label>
+          <label>Azote (g/kg)
+            <input name="Azote_g_kg" type="number" value="1.2" step="0.1" />
+          </label>
         </div>
-    </header>
+        <button type="submit">Envoyer la prédiction</button>
+      </form>
 
-    <div class="container">
-        <div class="sidebar">
-            
-            <div class="card">
-                <div class="card-title">Paramètres de Simulation</div>
-                <form id="apiForm" onsubmit="appelerAPI(event)">
-                    <div class="form-group">
-                        <label for="commune">Commune cible</label>
-                        <select id="commune" required>
-                        <option value="ABOMEY">ABOMEY</option>
-                                <option value="ADJA-OUERE">ADJA-OUÈRÈ</option>
-                                <option value="AGBANGNIZOUN">AGBANGNIZOUN</option>
-                                <option value="APLAHOUÉ">APLAHOUÉ</option>
-                                <option value="BANIKOARA">BANIKOARA</option>
-                                <option value="BANTÈ">BANTÈ</option>
-                                <option value="BASSILA">BASSILA</option>
-                                <option value="BEMBEREKE">BEMBÈRÈKÈ</option>
-                                <option value="BOHICON">BOHICON</option>
-                                <option value="BONOU">BONOU</option>
-                                <option value="BOUKOUMBE">BOUKOUMBÉ</option>
-                                <option value="COBLY">COBLY</option>
-                                <option value="COPARGO">COPARGO</option>
-                                <option value="COVÈ">COVÈ</option>
-                                <option value="DASSA-ZOUME">DASSA-ZOUMÈ</option>
-                                <option value="DJAKOTOMEY">DJAKOTOMEY</option>
-                                <option value="DJIDJA">DJIDJA</option>
-                                <option value="DJOUGOU">DJOUGOU</option>
-                                <option value="DOGBO">DOGBO</option>
-                                <option value="GLAZOUÉ">GLAZOUÉ</option>
-                                <option value="GOGOUNOU">GOGOUNOU</option>
-                                <option value="KALALE">KALALÉ</option>
-                                <option value="KANDI">KANDI</option>
-                                <option value="KARIMAMA">KARIMAMA</option>
-                                <option value="KLUEKANME">KLOUÉKANMÈ</option>
-                                <option value="KOUANDE">KOUANDÉ</option>
-                                <option value="KEROU">KÉROU</option>
-                                <option value="KETOU">KÉTOU</option>
-                                <option value="LALO">LALO</option>
-                                <option value="LOKOSSA">LOKOSSA</option>
-                                <option value="MALANVILLE">MALANVILLE</option>
-                                <option value="MATERI">MATÉRI</option>
-                                <option value="N'DALI">N'DALI</option>
-                                <option value="NATITINGOU">NATITINGOU</option>
-                                <option value="NIKKI">NIKKI</option>
-                                <option value="OUAKE">OUAKÉ</option>
-                                <option value="OUINHI">OUINHI</option>
-                                <option value="OUESSE">OUÈSSÈ</option>
-                                <option value="PARAKOU">PARAKOU</option>
-                                <option value="PÉHUNCO">PÉHUNCO</option>
-                                <option value="POBE">POBÉ</option>
-                                <option value="PERERE">PÈRÈRÈ</option>
-                                <option value="SAVALOU">SAVALOU</option>
-                                <option value="SAVÈ">SAVÈ</option>
-                                <option value="SINENDE">SINENDÉ</option>
-                                <option value="SEGBANA">SÉGBANA</option>
-                                <option value="TANGUIETA">TANGUIÉTA</option>
-                                <option value="TCHAOUROU">TCHAOUROU</option>
-                                <option value="TOUCOUNTOUNA">TOUCOUNTOUNA</option>
-                                <option value="TOVIKLIN">TOVIKLIN</option>
-                                <option value="ZA-KPOTA">ZA-KPOTA</option>
-                                <option value="ZAGNANADO">ZAGNANADO</option>
-                                <option value="ZOGBODOMEY">ZOGBODOMEY</option>
-                        </select>
-                    </div>
+      <div id="resultBox" class="result hidden"></div>
+      <div id="map"></div>
+    </section>
 
-                    <div class="form-row">
-                        <div class="form-group"><label>Pluie Semis (mm)</label><input type="number" step="0.1" id="Pluie_Semis_mm" value="350.0" required></div>
-                        <div class="form-group"><label>Jours Secs Semis</label><input type="number" id="Max_Jours_Secs_Semis" value="2" required></div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group"><label>Pluie Floraison (mm)</label><input type="number" step="0.1" id="Pluie_Floraison_mm" value="570.0" required></div>
-                        <div class="form-group"><label>Jours Secs Floraison</label><input type="number" id="Max_Jours_Secs_Floraison" value="1" required></div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group"><label>Pluie Maturation (mm)</label><input type="number" step="0.1" id="Pluie_Maturation_mm" value="160.0" required></div>
-                        <div class="form-group"><label>Jours Secs Maturation</label><input type="number" id="Max_Jours_Secs_Maturation" value="10" required></div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group"><label>pH du Sol</label><input type="number" step="0.1" id="pH_Sol" value="6.2" required></div>
-                        <div class="form-group"><label>Argile (%)</label><input type="number" step="0.1" id="Argile_Perc" value="22.0" required></div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group"><label>Azote (g/kg)</label><input type="number" step="0.1" id="Azote_g_kg" value="1.2" required></div>
-                        <div class="form-group"><label>Rad. Solaire (MJ)</label><input type="number" step="0.1" id="Radiation_Solaire_MJ" value="17.5" required></div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group"><label>T° Max Moy (°C)</label><input type="number" step="0.1" id="Temp_Max_Moy_C" value="33.2" required></div>
-                        <div class="form-group"><label>Humidité (%)</label><input type="number" step="0.1" id="Humidite_Relative_Perc" value="82.0" required></div>
-                    </div>
+    <section class="card" style="margin-top: 24px;">
+      <h2>Historique récent</h2>
+      <ul id="historyList">
+        <li class="muted">Chargement en cours…</li>
+      </ul>
+    </section>
+  </div>
 
-                    <button type="submit" class="btn">Interroger l'API & Cartographier</button>
-                </form>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    const form = document.getElementById('predictionForm');
+    const resultBox = document.getElementById('resultBox');
+    const historyList = document.getElementById('historyList');
 
-                <div id="resultBox" class="result-box">
-                    <div class="res-header">
-                        <span id="resCommune" class="res-commune">-</span>
-                        <span id="resValue" class="res-value">0 kg/ha</span>
-                    </div>
-                    <div id="resBadge" class="badge">NORMAL</div>
-                    <div id="resModele" class="res-modele">Pipeline : -</div>
-                </div>
-            </div>
+    const communeCoords = {
+      PARAKOU: [9.35, 2.62],
+      COTONOU: [6.36, 2.44],
+      BOHICON: [7.18, 2.07],
+      PORTO_NOVO: [6.49, 2.63],
+      NIKKI: [9.93, 3.20],
+      KANDI: [11.13, 2.93],
+      ABOMEY: [7.18, 1.99],
+      MALANVILLE: [11.87, 3.38],
+      DJOUGOU: [9.70, 1.67],
+      TCHAOUROU: [8.88, 2.59],
+      BEMBEREKE: [10.24, 2.66]
+    };
 
-        </div>
+    const map = L.map('map').setView([9.3, 2.3], 6);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
 
-        <div class="map-container">
-            <div id="map"></div>
-        </div>
-    </div>
+    let marker = null;
 
-    <script>
-        // Coordonnées pour centrer et marquer la carte au Bénin
-        const COORDS = {
-           "ABOMEY": {lat: 7.18, lng: 1.99}, "ADJA-OUERE": {lat: 6.94, lng: 2.64}, "AGBANGNIZOUN": {lat: 7.08, lng: 1.96},
-            "APLAHOUÉ": {lat: 6.93, lng: 1.68}, "BANIKOARA": {lat: 11.30, lng: 2.43}, "BANTÈ": {lat: 8.42, lng: 1.88},
-            "BASSILA": {lat: 9.01, lng: 1.67}, "BEMBEREKE": {lat: 10.22, lng: 2.67}, "BOHICON": {lat: 7.17, lng: 2.07},
-            "BONOU": {lat: 6.89, lng: 2.49}, "BOUKOUMBE": {lat: 10.17, lng: 1.10}, "COBLY": {lat: 10.40, lng: 1.39},
-            "COPARGO": {lat: 9.84, lng: 1.55}, "COVÈ": {lat: 7.22, lng: 2.34}, "DASSA-ZOUME": {lat: 7.75, lng: 2.18},
-            "DJAKOTOMEY": {lat: 6.90, lng: 1.72}, "DJIDJA": {lat: 7.34, lng: 1.93}, "DJOUGOU": {lat: 9.70, lng: 1.66},
-            "DOGBO": {lat: 6.81, lng: 1.78}, "GLAZOUÉ": {lat: 7.97, lng: 2.24}, "GOGOUNOU": {lat: 10.84, lng: 2.84},
-            "KALALE": {lat: 10.30, lng: 3.38}, "KANDI": {lat: 11.13, lng: 2.93}, "KARIMAMA": {lat: 12.06, lng: 3.18},
-            "KLUEKANME": {lat: 6.91, lng: 1.88}, "KOUANDE": {lat: 10.33, lng: 1.69}, "KEROU": {lat: 10.83, lng: 2.00},
-            "KETOU": {lat: 7.36, lng: 2.60}, "LALO": {lat: 6.92, lng: 1.88}, "LOKOSSA": {lat: 6.64, lng: 1.72},
-            "MALANVILLE": {lat: 11.86, lng: 3.38}, "MATERI": {lat: 10.74, lng: 1.11}, "N'DALI": {lat: 9.86, lng: 2.42},
-            "NATITINGOU": {lat: 10.30, lng: 1.37}, "NIKKI": {lat: 9.93, lng: 3.21}, "OUAKE": {lat: 9.66, lng: 1.38},
-            "OUINHI": {lat: 7.00, lng: 2.45}, "OUESSE": {lat: 8.49, lng: 2.43}, "PARAKOU": {lat: 9.34, lng: 2.63},
-            "PÉHUNCO": {lat: 10.23, lng: 2.01}, "POBE": {lat: 6.98, lng: 2.68}, "PERERE": {lat: 9.37, lng: 2.98},
-            "SAVALOU": {lat: 7.93, lng: 1.98}, "SAVÈ": {lat: 8.04, lng: 2.49}, "SINENDE": {lat: 9.27, lng: 2.38},
-            "SEGBANA": {lat: 10.93, lng: 3.69}, "TANGUIETA": {lat: 10.62, lng: 1.26}, "TCHAOUROU": {lat: 8.89, lng: 2.60},
-            "TOUCOUNTOUNA": {lat: 10.51, lng: 1.43}, "TOVIKLIN": {lat: 6.80, lng: 1.62}, "ZA-KPOTA": {lat: 7.24, lng: 2.11},
-            "ZAGNANADO": {lat: 7.27, lng: 2.34}, "ZOGBODOMEY": {lat: 7.08, lng: 2.10}
-        };
+    function updateMap(commune, rendement, categorie) {
+      const coords = communeCoords[commune.toUpperCase()] || [9.3, 2.3];
+      if (marker) {
+        map.removeLayer(marker);
+      }
+      marker = L.marker(coords).addTo(map);
+      marker.bindPopup(`<strong>${commune}</strong><br>Rendement: ${rendement} kg/ha<br>Catégorie: ${categorie}`).openPopup();
+      map.setView(coords, 8);
+    }
 
-        // Initialisation de la carte
-        const map = L.map('map').setView([9.30, 2.30], 7);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap contributors'
-        }).addTo(map);
+    function buildPayload(formData) {
+      const payload = {};
+      for (const [key, value] of formData.entries()) {
+        if (!key) continue;
+        payload[key] = value;
+      }
 
-        let marqueurActuel = null;
+      payload.Commune = String(payload.Commune || '').toUpperCase().trim();
+      payload.Annee = Number(payload.Annee || 2026);
 
-        async function appelerAPI(e) {
-            e.preventDefault();
-            const commune = document.getElementById('commune').value;
-
-            // Construction du corps JSON attendu par l'API
-            const payload = {
-                "Commune": commune,
-                "Pluie_Semis_mm": parseFloat(document.getElementById('Pluie_Semis_mm').value),
-                "Max_Jours_Secs_Semis": parseInt(document.getElementById('Max_Jours_Secs_Semis').value),
-                "Pluie_Floraison_mm": parseFloat(document.getElementById('Pluie_Floraison_mm').value),
-                "Max_Jours_Secs_Floraison": parseInt(document.getElementById('Max_Jours_Secs_Floraison').value),
-                "Pluie_Maturation_mm": parseFloat(document.getElementById('Pluie_Maturation_mm').value),
-                "Max_Jours_Secs_Maturation": parseInt(document.getElementById('Max_Jours_Secs_Maturation').value),
-                "pH_Sol": parseFloat(document.getElementById('pH_Sol').value),
-                "Argile_Perc": parseFloat(document.getElementById('Argile_Perc').value),
-                "Azote_g_kg": parseFloat(document.getElementById('Azote_g_kg').value),
-                "Radiation_Solaire_MJ": parseFloat(document.getElementById('Radiation_Solaire_MJ').value),
-                "Temp_Max_Moy_C": parseFloat(document.getElementById('Temp_Max_Moy_C').value),
-                "Humidite_Relative_Perc": parseFloat(document.getElementById('Humidite_Relative_Perc').value)
-            };
-
-            try {
-                // Envoi de la requête à l'API Flask
-                const response = await fetch('http://127.0.0.1:5000/predict', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                
-                const data = await response.json();
-
-                if (!data.success) {
-                    alert("Erreur retournée par l'API : " + data.error);
-                    return;
-                }
-
-                // Extraction des données de la réponse JSON de l'API
-                const rend = data.rendement;
-                const pipeline = data.modele_utilise; 
-                const classe = data.categorie;
-
-                // Code couleur selon les résultats renvoyés
-                let couleur = '#66bb6a'; // Excellent
-                if (rend < 700) couleur = '#ef5350'; // Faible
-                else if (rend < 1100) couleur = '#ffb74d'; // Moyen
-
-                // Mise à jour de l'interface graphique
-                document.getElementById('resCommune').textContent = commune;
-                document.getElementById('resValue').textContent = `${rend.toFixed(0)} kg/ha`;
-                document.getElementById('resValue').style.color = couleur;
-                
-                const badge = document.getElementById('resBadge');
-                badge.textContent = classe;
-                badge.style.backgroundColor = couleur;
-                badge.style.color = '#fff';
-                
-                document.getElementById('resModele').textContent = `Pipeline API mobilisé : ${pipeline.toUpperCase()}`;
-                document.getElementById('resultBox').classList.add('show');
-
-                // Projection sur la carte
-                const pos = COORDS[commune];
-                if (pos) {
-                    if (marqueurActuel) map.removeLayer(marqueurActuel);
-
-                    marqueurActuel = L.circleMarker(pos, {
-                        radius: 13,
-                        fillColor: couleur,
-                        color: '#fff',
-                        weight: 2,
-                        fillOpacity: 0.9
-                    }).addTo(map);
-
-                    marqueurActuel.bindPopup(`<b>${commune}</b><br>Rendement : ${rend.toFixed(0)} kg/ha<br>Source : API JSON (${pipeline})`).openPopup();
-                    map.setView(pos, 9);
-                }
-
-            } catch (err) {
-                console.error(err);
-                alert("Erreur de connexion : Assurez-vous que votre API Flask tourne sur http://127.0.0.1:5000");
-            }
+      for (const key of Object.keys(payload)) {
+        if (key === 'Commune') continue;
+        const raw = payload[key];
+        if (raw === '' || raw === null || raw === undefined) {
+          payload[key] = null;
+        } else if (!isNaN(raw)) {
+          payload[key] = Number(raw);
         }
-    </script>
+      }
+
+      return payload;
+    }
+
+    async function loadHistory() {
+      try {
+        const response = await fetch('/historique');
+        const data = await response.json();
+        const items = data.historique || [];
+        if (!items.length) {
+          historyList.innerHTML = '<li class="muted">Aucun historique disponible pour le moment.</li>';
+          return;
+        }
+
+        historyList.innerHTML = items.map(item => `
+          <li>
+            <strong>${item.commune}</strong> — rendement: ${item.rendement} kg/ha,
+            catégorie: ${item.categorie}, modèle: ${item.modele}
+          </li>
+        `).join('');
+      } catch (error) {
+        historyList.innerHTML = '<li class="muted">Impossible de charger l’historique.</li>';
+      }
+    }
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const payload = buildPayload(new FormData(form));
+
+      resultBox.className = 'result';
+      resultBox.innerHTML = '<p class="muted">Envoi en cours…</p>';
+
+      try {
+        const response = await fetch('/predict', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const result = await response.json();
+        if (!result.success) {
+          resultBox.classList.add('error');
+          resultBox.innerHTML = `<h3>Erreur</h3><p>${result.error || 'La prédiction a échoué.'}</p>`;
+          return;
+        }
+
+        resultBox.classList.add('success');
+        resultBox.innerHTML = `
+          <h3>Résultat de la prédiction</h3>
+          <div class="stat"><span>Commune</span><strong>${payload.Commune}</strong></div>
+          <div class="stat"><span>Rendement estimé</span><strong>${result.rendement} kg/ha</strong></div>
+          <div class="stat"><span>Catégorie</span><strong>${result.categorie}</strong></div>
+          <div class="stat"><span>Modèle utilisé</span><strong>${result.modele_utilise}</strong></div>
+        `;
+        updateMap(payload.Commune, result.rendement, result.categorie);
+        await loadHistory();
+      } catch (error) {
+        resultBox.classList.add('error');
+        resultBox.innerHTML = '<h3>Erreur</h3><p>Impossible d’atteindre l’API.</p>';
+      }
+    });
+
+    updateMap('BENIN', 0, 'À définir');
+    loadHistory();
+  </script>
 </body>
 </html>
