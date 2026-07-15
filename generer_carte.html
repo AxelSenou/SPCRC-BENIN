@@ -89,7 +89,6 @@
 <body>
 
     <header>
-        <div style="font-size: 20px;"></div>
         <div>
             <h1>SPCRC-Bénin — Visualisation Cartographique</h1>
             <p>Interface connectée à l'API de Prédiction des Rendements Cotonniers</p>
@@ -101,63 +100,63 @@
             
             <div class="card">
                 <div class="card-title">Paramètres de Simulation</div>
-                <form id="apiForm" onsubmit="appelerAPI(event)">
+                <form id="apiForm" action="#" method="post" onsubmit="appelerAPI(event)">
                     <div class="form-group">
                         <label for="commune">Commune cible</label>
                         <select id="commune" required>
-                        <option value="ABOMEY">ABOMEY</option>
-                                <option value="ADJA-OUERE">ADJA-OUÈRÈ</option>
-                                <option value="AGBANGNIZOUN">AGBANGNIZOUN</option>
-                                <option value="APLAHOUÉ">APLAHOUÉ</option>
-                                <option value="BANIKOARA">BANIKOARA</option>
-                                <option value="BANTÈ">BANTÈ</option>
-                                <option value="BASSILA">BASSILA</option>
-                                <option value="BEMBEREKE">BEMBÈRÈKÈ</option>
-                                <option value="BOHICON">BOHICON</option>
-                                <option value="BONOU">BONOU</option>
-                                <option value="BOUKOUMBE">BOUKOUMBÉ</option>
-                                <option value="COBLY">COBLY</option>
-                                <option value="COPARGO">COPARGO</option>
-                                <option value="COVÈ">COVÈ</option>
-                                <option value="DASSA-ZOUME">DASSA-ZOUMÈ</option>
-                                <option value="DJAKOTOMEY">DJAKOTOMEY</option>
-                                <option value="DJIDJA">DJIDJA</option>
-                                <option value="DJOUGOU">DJOUGOU</option>
-                                <option value="DOGBO">DOGBO</option>
-                                <option value="GLAZOUÉ">GLAZOUÉ</option>
-                                <option value="GOGOUNOU">GOGOUNOU</option>
-                                <option value="KALALE">KALALÉ</option>
-                                <option value="KANDI">KANDI</option>
-                                <option value="KARIMAMA">KARIMAMA</option>
-                                <option value="KLUEKANME">KLOUÉKANMÈ</option>
-                                <option value="KOUANDE">KOUANDÉ</option>
-                                <option value="KEROU">KÉROU</option>
-                                <option value="KETOU">KÉTOU</option>
-                                <option value="LALO">LALO</option>
-                                <option value="LOKOSSA">LOKOSSA</option>
-                                <option value="MALANVILLE">MALANVILLE</option>
-                                <option value="MATERI">MATÉRI</option>
-                                <option value="N'DALI">N'DALI</option>
-                                <option value="NATITINGOU">NATITINGOU</option>
-                                <option value="NIKKI">NIKKI</option>
-                                <option value="OUAKE">OUAKÉ</option>
-                                <option value="OUINHI">OUINHI</option>
-                                <option value="OUESSE">OUÈSSÈ</option>
-                                <option value="PARAKOU">PARAKOU</option>
-                                <option value="PÉHUNCO">PÉHUNCO</option>
-                                <option value="POBE">POBÉ</option>
-                                <option value="PERERE">PÈRÈRÈ</option>
-                                <option value="SAVALOU">SAVALOU</option>
-                                <option value="SAVÈ">SAVÈ</option>
-                                <option value="SINENDE">SINENDÉ</option>
-                                <option value="SEGBANA">SÉGBANA</option>
-                                <option value="TANGUIETA">TANGUIÉTA</option>
-                                <option value="TCHAOUROU">TCHAOUROU</option>
-                                <option value="TOUCOUNTOUNA">TOUCOUNTOUNA</option>
-                                <option value="TOVIKLIN">TOVIKLIN</option>
-                                <option value="ZA-KPOTA">ZA-KPOTA</option>
-                                <option value="ZAGNANADO">ZAGNANADO</option>
-                                <option value="ZOGBODOMEY">ZOGBODOMEY</option>
+                            <option value="ABOMEY">ABOMEY</option>
+                            <option value="ADJA-OUERE">ADJA-OUÈRÈ</option>
+                            <option value="AGBANGNIZOUN">AGBANGNIZOUN</option>
+                            <option value="APLAHOUÉ">APLAHOUÉ</option>
+                            <option value="BANIKOARA">BANIKOARA</option>
+                            <option value="BANTÈ">BANTÈ</option>
+                            <option value="BASSILA">BASSILA</option>
+                            <option value="BEMBEREKE">BEMBÈRÈKÈ</option>
+                            <option value="BOHICON">BOHICON</option>
+                            <option value="BONOU">BONOU</option>
+                            <option value="BOUKOUMBE">BOUKOUMBÉ</option>
+                            <option value="COBLY">COBLY</option>
+                            <option value="COPARGO">COPARGO</option>
+                            <option value="COVÈ">COVÈ</option>
+                            <option value="DASSA-ZOUME">DASSA-ZOUMÈ</option>
+                            <option value="DJAKOTOMEY">DJAKOTOMEY</option>
+                            <option value="DJIDJA">DJIDJA</option>
+                            <option value="DJOUGOU">DJOUGOU</option>
+                            <option value="DOGBO">DOGBO</option>
+                            <option value="GLAZOUÉ">GLAZOUÉ</option>
+                            <option value="GOGOUNOU">GOGOUNOU</option>
+                            <option value="KALALE">KALALÉ</option>
+                            <option value="KANDI">KANDI</option>
+                            <option value="KARIMAMA">KARIMAMA</option>
+                            <option value="KLUEKANME">KLOUÉKANMÈ</option>
+                            <option value="KOUANDE">KOUANDÉ</option>
+                            <option value="KEROU">KÉROU</option>
+                            <option value="KETOU">KÉTOU</option>
+                            <option value="LALO">LALO</option>
+                            <option value="LOKOSSA">LOKOSSA</option>
+                            <option value="MALANVILLE">MALANVILLE</option>
+                            <option value="MATERI">MATÉRI</option>
+                            <option value="N'DALI">N'DALI</option>
+                            <option value="NATITINGOU">NATITINGOU</option>
+                            <option value="NIKKI">NIKKI</option>
+                            <option value="OUAKE">OUAKÉ</option>
+                            <option value="OUINHI">OUINHI</option>
+                            <option value="OUESSE">OUÈSSÈ</option>
+                            <option value="PARAKOU">PARAKOU</option>
+                            <option value="PÉHUNCO">PÉHUNCO</option>
+                            <option value="POBE">POBÉ</option>
+                            <option value="PERERE">PÈRÈRÈ</option>
+                            <option value="SAVALOU">SAVALOU</option>
+                            <option value="SAVÈ">SAVÈ</option>
+                            <option value="SINENDE">SINENDÉ</option>
+                            <option value="SEGBANA">SÉGBANA</option>
+                            <option value="TANGUIETA">TANGUIÉTA</option>
+                            <option value="TCHAOUROU">TCHAOUROU</option>
+                            <option value="TOUCOUNTOUNA">TOUCOUNTOUNA</option>
+                            <option value="TOVIKLIN">TOVIKLIN</option>
+                            <option value="ZA-KPOTA">ZA-KPOTA</option>
+                            <option value="ZAGNANADO">ZAGNANADO</option>
+                            <option value="ZOGBODOMEY">ZOGBODOMEY</option>
                         </select>
                     </div>
 
@@ -239,11 +238,13 @@
 
         async function appelerAPI(e) {
             e.preventDefault();
-            const commune = document.getElementById('commune').value;
+            const communeSelect = document.getElementById('commune');
+            const communeCode = communeSelect.value;
+            const communeLabel = communeSelect.selectedOptions[0].textContent;
 
             // Construction du corps JSON attendu par l'API
             const payload = {
-                "Commune": commune,
+                "Commune": communeCode,
                 "Pluie_Semis_mm": parseFloat(document.getElementById('Pluie_Semis_mm').value),
                 "Max_Jours_Secs_Semis": parseInt(document.getElementById('Max_Jours_Secs_Semis').value),
                 "Pluie_Floraison_mm": parseFloat(document.getElementById('Pluie_Floraison_mm').value),
@@ -260,7 +261,7 @@
 
             try {
                 // Envoi de la requête à l'API Flask
-                const response = await fetch('http://127.0.0.1:5000/predict', {
+                const response = await fetch('./predict', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
@@ -284,7 +285,7 @@
                 else if (rend < 1100) couleur = '#ffb74d'; // Moyen
 
                 // Mise à jour de l'interface graphique
-                document.getElementById('resCommune').textContent = commune;
+                document.getElementById('resCommune').textContent = communeLabel;
                 document.getElementById('resValue').textContent = `${rend.toFixed(0)} kg/ha`;
                 document.getElementById('resValue').style.color = couleur;
                 
@@ -297,7 +298,7 @@
                 document.getElementById('resultBox').classList.add('show');
 
                 // Projection sur la carte
-                const pos = COORDS[commune];
+                const pos = COORDS[communeCode];
                 if (pos) {
                     if (marqueurActuel) map.removeLayer(marqueurActuel);
 
@@ -309,7 +310,7 @@
                         fillOpacity: 0.9
                     }).addTo(map);
 
-                    marqueurActuel.bindPopup(`<b>${commune}</b><br>Rendement : ${rend.toFixed(0)} kg/ha<br>Source : API JSON (${pipeline})`).openPopup();
+                    marqueurActuel.bindPopup(`<b>${communeLabel}</b><br>Rendement : ${rend.toFixed(0)} kg/ha<br>Source : API JSON (${pipeline})`).openPopup();
                     map.setView(pos, 9);
                 }
 
