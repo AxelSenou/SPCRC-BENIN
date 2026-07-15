@@ -215,17 +215,59 @@
     const historyList = document.getElementById('historyList');
 
     const communeCoords = {
-      PARAKOU: [9.35, 2.62],
-      COTONOU: [6.36, 2.44],
-      BOHICON: [7.18, 2.07],
-      PORTO_NOVO: [6.49, 2.63],
-      NIKKI: [9.93, 3.20],
-      KANDI: [11.13, 2.93],
       ABOMEY: [7.18, 1.99],
-      MALANVILLE: [11.87, 3.38],
+      ABOMEY_CALAVI: [6.45, 2.35],
+      ADJARRA: [6.64, 2.46],
+      APLAHOUE: [6.94, 1.68],
+      ATHIEME: [6.56, 1.71],
+      BANTE: [9.42, 1.90],
+      BANIKOARA: [11.30, 2.44],
+      BASSILA: [9.01, 1.66],
+      BEMBEREKE: [10.24, 2.66],
+      BETEROU: [10.30, 2.93],
+      BOHICON: [7.18, 2.07],
+      BONOU: [6.92, 2.33],
+      BOUKOUMBE: [10.21, 1.10],
+      CANA: [7.89, 2.49],
+      COBLY: [10.50, 1.26],
+      COME: [6.41, 1.86],
+      COVE: [7.22, 2.34],
+      DASSA_ZOUME: [7.76, 2.19],
+      DJIDJA: [7.36, 1.93],
       DJOUGOU: [9.70, 1.67],
+      DOGBO_TOTA: [6.80, 1.78],
+      GLAZOUE: [7.97, 2.26],
+      GRAND_POPO: [6.30, 1.83],
+      HOUEYOGBE: [6.62, 1.83],
+      KANDI: [11.13, 2.93],
+      KARIMAMA: [12.09, 3.19],
+      KETOU: [7.37, 2.60],
+      KPOMASSE: [6.95, 2.23],
+      LALO: [6.80, 2.14],
+      LOKOSSA: [6.64, 1.72],
+      MALANVILLE: [11.87, 3.38],
+      NATITINGOU: [10.31, 1.38],
+      NIKKI: [9.94, 3.20],
+      OUIDAH: [6.37, 2.08],
+      PARAKOU: [9.35, 2.62],
+      PEHUNCO: [9.98, 1.78],
+      POBE: [6.95, 2.67],
+      PORTO_NOVO: [6.49, 2.63],
+      SAKETE: [6.73, 2.66],
+      SAVALOU: [7.93, 1.97],
+      SAVE: [8.03, 2.47],
+      SEGBANA: [8.89, 2.44],
+      SEME_KPODJI: [6.38, 2.43],
+      SINENDE: [8.22, 2.06],
+      TANGUIETA: [10.62, 1.27],
       TCHAOUROU: [8.88, 2.59],
-      BEMBEREKE: [10.24, 2.66]
+      TOFFO: [6.79, 2.16],
+      TORI_BOSSITO: [6.63, 2.15],
+      TOUCOUNTOUNA: [10.47, 1.49],
+      YOKO: [7.42, 1.90],
+      ZAGNANADO: [7.29, 2.12],
+      ZA_KPOTA: [7.13, 2.39],
+      ZOGBODOMEY: [7.58, 2.10]
     };
 
     const map = L.map('map').setView([9.3, 2.3], 6);
@@ -235,14 +277,33 @@
     }).addTo(map);
 
     let marker = null;
+    const communeLayer = L.layerGroup().addTo(map);
+
+    function drawAllCommunes() {
+      communeLayer.clearLayers();
+      Object.entries(communeCoords).forEach(([name, coords]) => {
+        const circle = L.circleMarker(coords, {
+          radius: 4,
+          color: '#2e7d32',
+          fillColor: '#66bb6a',
+          fillOpacity: 0.85,
+          weight: 1
+        }).addTo(communeLayer);
+        circle.bindPopup(`<strong>${name.replace(/_/g, ' ')}</strong>`);
+      });
+
+      const bounds = L.latLngBounds(Object.values(communeCoords));
+      map.fitBounds(bounds.pad(0.2));
+    }
 
     function updateMap(commune, rendement, categorie) {
-      const coords = communeCoords[commune.toUpperCase()] || [9.3, 2.3];
+      const normalizedCommune = commune.toUpperCase();
+      const coords = communeCoords[normalizedCommune] || [9.3, 2.3];
       if (marker) {
         map.removeLayer(marker);
       }
       marker = L.marker(coords).addTo(map);
-      marker.bindPopup(`<strong>${commune}</strong><br>Rendement: ${rendement} kg/ha<br>Catégorie: ${categorie}`).openPopup();
+      marker.bindPopup(`<strong>${normalizedCommune.replace(/_/g, ' ')}</strong><br>Rendement: ${rendement} kg/ha<br>Catégorie: ${categorie}`).openPopup();
       map.setView(coords, 8);
     }
 
@@ -327,6 +388,7 @@
       }
     });
 
+    drawAllCommunes();
     updateMap('BENIN', 0, 'À définir');
     loadHistory();
   </script>
