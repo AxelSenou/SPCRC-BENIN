@@ -139,7 +139,62 @@
       <form id="predictionForm">
         <div class="grid">
           <label>Commune
-            <input name="Commune" placeholder="PARAKOU" required />
+            <select name="Commune" id="communeSelect" required>
+              <option value="">-- Sélectionnez une commune --</option>
+              <option value="ABOMEY">ABOMEY</option>
+              <option value="ABOMEY_CALAVI">ABOMEY CALAVI</option>
+              <option value="ADJARRA">ADJARRA</option>
+              <option value="APLAHOUE">APLAHOUE</option>
+              <option value="ATHIEME">ATHIEME</option>
+              <option value="BANTE">BANTE</option>
+              <option value="BANIKOARA">BANIKOARA</option>
+              <option value="BASSILA">BASSILA</option>
+              <option value="BEMBEREKE">BEMBEREKE</option>
+              <option value="BETEROU">BETEROU</option>
+              <option value="BOHICON">BOHICON</option>
+              <option value="BONOU">BONOU</option>
+              <option value="BOUKOUMBE">BOUKOUMBE</option>
+              <option value="CANA">CANA</option>
+              <option value="COBLY">COBLY</option>
+              <option value="COME">COME</option>
+              <option value="COVE">COVE</option>
+              <option value="DASSA_ZOUME">DASSA ZOUME</option>
+              <option value="DJIDJA">DJIDJA</option>
+              <option value="DJOUGOU">DJOUGOU</option>
+              <option value="DOGBO_TOTA">DOGBO TOTA</option>
+              <option value="GLAZOUE">GLAZOUE</option>
+              <option value="GRAND_POPO">GRAND POPO</option>
+              <option value="HOUEYOGBE">HOUEYOGBE</option>
+              <option value="KANDI">KANDI</option>
+              <option value="KARIMAMA">KARIMAMA</option>
+              <option value="KETOU">KETOU</option>
+              <option value="KPOMASSE">KPOMASSE</option>
+              <option value="LALO">LALO</option>
+              <option value="LOKOSSA">LOKOSSA</option>
+              <option value="MALANVILLE">MALANVILLE</option>
+              <option value="NATITINGOU">NATITINGOU</option>
+              <option value="NIKKI">NIKKI</option>
+              <option value="OUIDAH">OUIDAH</option>
+              <option value="PARAKOU">PARAKOU</option>
+              <option value="PEHUNCO">PEHUNCO</option>
+              <option value="POBE">POBE</option>
+              <option value="PORTO_NOVO">PORTO NOVO</option>
+              <option value="SAKETE">SAKETE</option>
+              <option value="SAVALOU">SAVALOU</option>
+              <option value="SAVE">SAVE</option>
+              <option value="SEGBANA">SEGBANA</option>
+              <option value="SEME_KPODJI">SEME KPODJI</option>
+              <option value="SINENDE">SINENDE</option>
+              <option value="TANGUIETA">TANGUIETA</option>
+              <option value="TCHAOUROU">TCHAOUROU</option>
+              <option value="TOFFO">TOFFO</option>
+              <option value="TORI_BOSSITO">TORI BOSSITO</option>
+              <option value="TOUCOUNTOUNA">TOUCOUNTOUNA</option>
+              <option value="YOKO">YOKO</option>
+              <option value="ZAGNANADO">ZAGNANADO</option>
+              <option value="ZA_KPOTA">ZA KPOTA</option>
+              <option value="ZOGBODOMEY">ZOGBODOMEY</option>
+            </select>
           </label>
           <label>Année
             <input name="Annee" type="number" value="2026" />
@@ -270,6 +325,15 @@
       ZOGBODOMEY: [7.58, 2.10]
     };
 
+    const communeNames = Object.keys(communeCoords).sort();
+    const communeSelect = document.getElementById('communeSelect');
+
+    function populateCommuneSelect() {
+      communeSelect.innerHTML = communeNames.map((name) => `
+        <option value="${name}" ${name === 'PARAKOU' ? 'selected' : ''}>${name.replace(/_/g, ' ')}</option>
+      `).join('');
+    }
+
     const map = L.map('map').setView([9.3, 2.3], 6);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
@@ -388,8 +452,9 @@
       }
     });
 
+    populateCommuneSelect();
     drawAllCommunes();
-    updateMap('BENIN', 0, 'À définir');
+    updateMap('PARAKOU', 0, 'À définir');
     loadHistory();
   </script>
 </body>
